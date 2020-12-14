@@ -39,7 +39,7 @@ jobs:
       with:
         name: Properties file
         path: build/libs/${{steps.findjar.outputs.jarname}}
-  Publish to release:
+  Publish-to-Github:
     runs-on: ubuntu-latest
     needs: [Build]
     steps:
