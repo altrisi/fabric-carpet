@@ -33,12 +33,12 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: Built Release
-        path: build/libs/${{steps.findjar.outputs.jarname}}
+        path: ${{steps.findjar.outputs.jarname}}
     - name: Save the properties file to not need to checkout all
       uses: actions/upload-artifact@v2
       with:
         name: Properties file
-        path: build/libs/${{steps.findjar.outputs.jarname}}
+        path: gradle.properties
   Publish-to-Github:
     runs-on: ubuntu-latest
     needs: [Build]
