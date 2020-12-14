@@ -27,7 +27,7 @@ jobs:
     - name: Find correct JAR
       id: findjar
       run: |
-        output = "$(find build/libs/ ! -name "*-dev.jar" ! -name "*-sources.jar" -type f)"
+        output="$(find build/libs/ ! -name "*-dev.jar" ! -name "*-sources.jar" -type f)"
         echo "::set-output name=jarname::$output"
     - name: Save the build in the action
       uses: actions/upload-artifact@v2
