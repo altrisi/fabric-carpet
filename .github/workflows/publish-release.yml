@@ -223,6 +223,5 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git commit -am "Merge docs for '${{ github.event.release.name }}'"
-          git push
-          echo "Won't show error when nothing to commit"
+          git commit -am "Merge docs for '${{ github.event.release.name }}'" || true
+          git push || true
