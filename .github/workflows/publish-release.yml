@@ -56,6 +56,15 @@ jobs:
         with:
           path: './gradle.properties'
           property: 'release-extra-curse-version'
+      - name: Debug
+        run: |
+          echo "
+          release-type: ${{ steps.type.outputs.release-type }}
+          carpet-version: ${{ steps.carpetver.outputs.value }}
+          minecraft-version: ${{ steps.mcver.outputs.value }}
+          extra-branch: ${{ steps.buildextra.outputs.value }}
+          extra-branch-name: ${{ steps.extra-name.outputs.value }}
+          extra-branch-curse-version: ${{ steps.curse-extra-version.outputs.value }}"
   Build:
     runs-on: ubuntu-latest
     needs: [Get-Properties]
@@ -209,7 +218,6 @@ jobs:
       - name: Merge docs
         run: |
           ./mergedoc.sh
-          echo "Won't show error when nothing to commit"
       - name: Commit merged docs
         continue-on-error: true
         run: |
@@ -217,3 +225,4 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git commit -am "Merge docs for '${{ github.event.release.name }}'"
           git push
+          echo "Won't show error when nothing to commit"
