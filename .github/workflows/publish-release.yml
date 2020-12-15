@@ -13,7 +13,7 @@ jobs:
       extra-branch: ${{ steps.properties.outputs.release-extra-branch }}
       extra-branch-name: ${{ steps.properties.outputs.release-extra-branch-name }}
       extra-branch-curse-version: ${{ steps.properties.outputs.release-extra-curse-version }}
-    steps: #TO-DO Maybe make a PR to christian-draeger/read-properties to allow reading multiple properties at once
+    steps:
       - name: Checkout the sources
         uses: actions/checkout@v2
       - name: Determine release type
@@ -101,8 +101,7 @@ jobs:
           file_path: ${{ needs.Build.outputs.jarname }}
           changelog_type: markdown
           changelog: ${{ github.event.release.body }}
-          #display_name: Carpet v${{TO-DO version}} for Minecraft ${{TO-DO MCVer}} 
-          display_name: ${{ github.event.release.name }} # TODO consider something like the above?
+          display_name: Carpet Mod v${{ needs.Get-Properties.outputs.carpet-version }} for Minecraft ${{ needs.Get-Properties.minecraft-version }}
           game_versions: ${{ needs.Get-Properties.outputs.minecraft-version }}
           release_type: ${{ needs.Get-Properties.outputs.release-type }}
   Build-Snapshot:
@@ -175,8 +174,7 @@ jobs:
           file_path: ${{ needs.Build-Snapshot.outputs.jarname }}
           changelog_type: markdown
           changelog: ${{ github.event.release.body }}
-          #display_name: Carpet v${{TO-DO version}} for Minecraft ${{TO-DO MCVer}} 
-          display_name: ${{ github.event.release.name }} # TODO consider something like the above? Mostly here, with the CF version
+          display_name: Carpet Mod v${{ needs.Get-Properties.outputs.carpet-version }} for ${{ needs.Get-Properties.outputs.extra-branch-curse-version }}
           game_versions: ${{ needs.Get-Properties.outputs.extra-branch-curse-version }}
           release_type: ${{ needs.Get-Properties.outputs.release-type }}
   Merge-Docs:
