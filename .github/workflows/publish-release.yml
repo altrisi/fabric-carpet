@@ -14,6 +14,8 @@ jobs:
       extra-branch-name: ${{ steps.extra-name.outputs.value }}
       extra-branch-curse-version: ${{ steps.curse-extra-version.outputs.value }}
     steps:
+      - name: Checkout the sources
+        uses: actions/checkout@v2
       - name: Determine release type
         id: type
         run: |
