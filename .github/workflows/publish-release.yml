@@ -139,7 +139,7 @@ jobs:
   Build-Snapshot:
     runs-on: ubuntu-latest
     needs: [Get-Properties]
-    if: contains(${{ needs.Get-Properties.outputs.extra-branch }}, 'true')
+    if: contains(needs.Get-Properties.outputs.extra-branch, 'true')
     outputs:
       jarname: ${{ steps.findjar.outputs.jarname }}
     steps:
