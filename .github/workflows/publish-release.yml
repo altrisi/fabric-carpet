@@ -4,8 +4,59 @@ on:
   release:
     types: [published]
 jobs:
+  Properties:
+    runs-on: ubuntu-latest
+    outputs:
+      release-type: ${{ steps.type.outputs.release-type }}
+      carpet-version: ${{ steps.carpetver.outputs.value }}
+      minecraft-version: ${{ steps.mcver.outputs.value }}
+      extra-branch: ${{ steps.buildextra.outputs.value }}
+      extra-branch-name: ${{ steps.extra-name.outputs.value }}
+      extra-branch-curse-version: ${{ steps.curse-extra-version.outputs.value }}
+    steps:
+      - name: Determine release type
+        id: type
+        run: |
+          if ${{ github.event.release.prerelease }}; then
+            echo "::set-output name=release-type::beta"
+          else
+            echo "::set-output name=release-type::release"
+          fi
+      - name: Get Carpet version from properties
+        id: carpetver
+        uses: christian-draeger/read-properties@1.0.1
+        with:
+          path: './gradle.properties'
+          property: 'mod_version'
+      - name: Get Minecraft version from properties
+        id: mcver
+        uses: christian-draeger/read-properties@1.0.1
+        with:
+          path: './gradle.properties'
+          property: 'minecraft_version'
+      - name: Get whether to build another branch from properties
+        id: buildextra
+        uses: christian-draeger/read-properties@1.0.1
+        with:
+          path: './gradle.properties'
+          property: 'release-extra-branch'
+      - name: Get Extra branch name from properties
+        if: contains(steps.buildextra.outputs.value, "true")
+        id: extra-name
+        uses: christian-draeger/read-properties@1.0.1
+        with:
+          path: './gradle.properties'
+          property: 'release-extra-branch-name'
+      - name: Get Extra release Curseforge's version name from properties
+        if: success()
+        id: curse-extra-version
+        uses: christian-draeger/read-properties@1.0.1
+        with:
+          path: './gradle.properties'
+          property: 'release-extra-curse-version'
   Build:
     runs-on: ubuntu-latest
+    needs: [Properties]
     outputs:
       jarname: ${{ steps.findjar.outputs.jarname }}
     steps:
@@ -35,11 +86,6 @@ jobs:
       with:
         name: Built Release
         path: build/libs/${{steps.findjar.outputs.jarname}}
-    - name: Save the properties file to not need to checkout all
-      uses: actions/upload-artifact@v2
-      with:
-        name: Properties file
-        path: gradle.properties
   Publish-to-Github:
     runs-on: ubuntu-latest
     needs: [Build]
@@ -60,7 +106,7 @@ jobs:
   Publish-to-Curseforge:
     if: contains("Nothing", "Something") # Aka disable 
     runs-on: ubuntu-latest
-    needs: [Build]
+    needs: [Build, Properties]
     steps:
       - name: Get the build
         uses: actions/download-artifact@v2
@@ -72,9 +118,10 @@ jobs:
           token: ${{ secrets.CF_API_TOKEN }}
           project_id: 349239
           game_endpoint: minecraft
-          file_path: ${{needs.Build.outputs.jarname}}
+          file_path: ${{ needs.Build.outputs.jarname }}
           changelog_type: markdown
           changelog: ${{ github.event.release.body }}
-          display_name: Carpet v${{TO-DO version}} for Minecraft ${{TO-DO MCVer}} (or get from event?, like ${{ github.event.release.name }}) 
-          game_versions: ${{TO-DO Read from file}}
-          release_type: ${{TO-DO Get from event}}
+          #display_name: Carpet v${{TO-DO version}} for Minecraft ${{TO-DO MCVer}} (or get from event?, like ${{ github.event.release.name }}) 
+          display_name: ${{ github.event.release.name }} # TODO consider something like the above?
+          game_versions: ${{ needs.Properties.outputs.minecraft-version }}
+          release_type: ${{ needs.Properties.outputs.release-type }}
