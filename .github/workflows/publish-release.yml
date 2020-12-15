@@ -215,6 +215,8 @@ jobs:
     steps:
       - name: Checkout the sources
         uses: actions/checkout@v2
+        with:
+          ref: master
       - name: Merge docs
         run: |
           ./mergedoc.sh
