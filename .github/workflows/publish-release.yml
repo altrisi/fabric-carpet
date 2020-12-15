@@ -4,7 +4,7 @@ on:
   release:
     types: [published]
 jobs:
-  Properties:
+  Get-Properties:
     runs-on: ubuntu-latest
     outputs:
       release-type: ${{ steps.type.outputs.release-type }}
@@ -50,7 +50,7 @@ jobs:
           path: './gradle.properties'
           property: 'release-extra-branch-name'
       - name: Get Extra release Curseforge's version name from properties
-        if: success()
+        if: steps.buildextra.outputs.value == 'true'
         id: curse-extra-version
         uses: christian-draeger/read-properties@1.0.1
         with:
@@ -58,7 +58,7 @@ jobs:
           property: 'release-extra-curse-version'
   Build:
     runs-on: ubuntu-latest
-    needs: [Properties]
+    needs: [Get-Properties]
     outputs:
       jarname: ${{ steps.findjar.outputs.jarname }}
     steps:
@@ -108,7 +108,7 @@ jobs:
   Publish-to-Curseforge:
     if: contains('Nothing', 'Something') # Aka disable 
     runs-on: ubuntu-latest
-    needs: [Build, Properties]
+    needs: [Build, Get-Properties]
     steps:
       - name: Get the build
         uses: actions/download-artifact@v2
@@ -125,5 +125,5 @@ jobs:
           changelog: ${{ github.event.release.body }}
           #display_name: Carpet v${{TO-DO version}} for Minecraft ${{TO-DO MCVer}} (or get from event?, like ${{ github.event.release.name }}) 
           display_name: ${{ github.event.release.name }} # TODO consider something like the above?
-          game_versions: ${{ needs.Properties.outputs.minecraft-version }}
-          release_type: ${{ needs.Properties.outputs.release-type }}
+          game_versions: ${{ needs.Get-Properties.outputs.minecraft-version }}
+          release_type: ${{ needs.Get-Properties.outputs.release-type }}
