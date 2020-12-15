@@ -8,11 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release-type: ${{ steps.type.outputs.release-type }}
-      carpet-version: ${{ steps.carpetver.outputs.value }}
-      minecraft-version: ${{ steps.mcver.outputs.value }}
-      extra-branch: ${{ steps.buildextra.outputs.value }}
-      extra-branch-name: ${{ steps.extra-name.outputs.value }}
-      extra-branch-curse-version: ${{ steps.curse-extra-version.outputs.value }}
+      carpet-version: ${{ steps.properties.outputs.mod_version }}
+      minecraft-version: ${{ steps.properties.outputs.minecraft_version }}
+      extra-branch: ${{ steps.properties.outputs.release-extra-branch }}
+      extra-branch-name: ${{ steps.properties.outputs.release-extra-branch-name }}
+      extra-branch-curse-version: ${{ steps.properties.outputs.release-extra-curse-version }}
     steps: #TO-DO Maybe make a PR to christian-draeger/read-properties to allow reading multiple properties at once
       - name: Checkout the sources
         uses: actions/checkout@v2
@@ -25,37 +25,15 @@ jobs:
             echo "::set-output name=release-type::release"
           fi
       - name: Get Carpet version from properties
-        id: carpetver
-        uses: christian-draeger/read-properties@1.0.1
-        with:
-          path: './gradle.properties'
-          property: 'mod_version'
-      - name: Get Minecraft version from properties
-        id: mcver
-        uses: christian-draeger/read-properties@1.0.1
-        with:
-          path: './gradle.properties'
-          property: 'minecraft_version'
-      - name: Get whether to build another branch from properties
-        id: buildextra
-        uses: christian-draeger/read-properties@1.0.1
-        with:
-          path: './gradle.properties'
-          property: 'release-extra-branch'
-      - name: Get Extra branch name from properties
-        if: steps.buildextra.outputs.value == 'true'
-        id: extra-name
-        uses: christian-draeger/read-properties@1.0.1
-        with:
-          path: './gradle.properties'
-          property: 'release-extra-branch-name'
-      - name: Get Extra release Curseforge's version name from properties
-        if: steps.buildextra.outputs.value == 'true'
-        id: curse-extra-version
-        uses: christian-draeger/read-properties@1.0.1
-        with:
-          path: './gradle.properties'
-          property: 'release-extra-curse-version'
+        id: properties
+        run: | # From christian-draeger/read-properties, using the action makes it extremely messy until christian-draeger/read-properties#2
+          path='./gradle.properties'
+          for property in mod_version minecraft_version release-extra-branch release-extra-branch-name release-extra-curse-version
+          do
+            result=$(sed -n "/^[[:space:]]*$property[[:space:]]*=[[:space:]]*/s/^[[:space:]]*$property[[:space:]]*=[[:space:]]*//p" "$path")
+            echo "$property value: $result"
+            echo ::set-output name=$property::"$result"
+          done
       - name: Debug
         run: |
           echo "
