@@ -13,7 +13,7 @@ jobs:
       extra-branch: ${{ steps.buildextra.outputs.value }}
       extra-branch-name: ${{ steps.extra-name.outputs.value }}
       extra-branch-curse-version: ${{ steps.curse-extra-version.outputs.value }}
-    steps:
+    steps: #TO-DO Maybe make a PR to christian-draeger/read-properties to allow reading multiple properties at once
       - name: Checkout the sources
         uses: actions/checkout@v2
       - name: Determine release type
@@ -127,3 +127,17 @@ jobs:
           display_name: ${{ github.event.release.name }} # TODO consider something like the above?
           game_versions: ${{ needs.Get-Properties.outputs.minecraft-version }}
           release_type: ${{ needs.Get-Properties.outputs.release-type }}
+  Merge-Docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the sources
+        uses: actions/checkout@v2
+      - name: Merge docs
+        run: ./mergedoc.sh
+      - name: Commit merged docs
+        continue-on-error: true
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -am "Merge docs for '${{ github.event.release.name }}'"
+          git push
