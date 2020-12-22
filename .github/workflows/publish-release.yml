@@ -96,7 +96,7 @@ jobs:
           asset_content_type: application/java-archive
       - name: Upload to Curseforge
         if: contains('something', 'nothing') # Aka disable
-        uses: itsmeow/curseforge-upload@v2
+        uses: itsmeow/curseforge-upload@v3
         with:
           token: ${{ secrets.CF_API_TOKEN }}
           project_id: 349239
