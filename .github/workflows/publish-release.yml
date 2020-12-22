@@ -171,11 +171,11 @@ jobs:
             to2="BUILD SUCCESSFUL"
           fi
           a="$(cat settings-toProccess.txt)"; a="$(echo "${a#*"$from1"}")"; echo "$from1${a%%"$to2"*}" > wiki/Current-Available-Settings.md
-      - name: Commit updated wiki page #TO-DO Same as merge-docs, prevent the ugly failure if nothing changed
+      - name: Commit updated wiki page
         continue-on-error: true
         run: |
           cd wiki
           git config --global user.name 'github-actions-bot' # Releases don't have valid commiter info :(
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git commit -am "Update wiki for '${{ github.event.release.name }}'"
+          git commit -am "Update wiki for '${{ github.event.release.name }}'" || exit 0
           git push
