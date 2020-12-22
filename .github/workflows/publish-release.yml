@@ -46,7 +46,7 @@ jobs:
       - name: Get info from branch to run
         id: getbranchinfo
         run: |
-          if ${{ matrix.branch == 'Snapshots'}; then
+          if ${{ matrix.branch == 'Snapshots'}}; then
             if ${{ needs.Get-Properties.outputs.extra-branch }}; then
               echo "::set-output name=branchname::${{ needs.Get-Properties.outputs.extra-branch-name }}"
             else
