@@ -50,7 +50,8 @@ jobs:
             if ${{ needs.Get-Properties.outputs.extra-branch }}; then
               echo "::set-output name=branchname::${{ needs.Get-Properties.outputs.extra-branch-name }}"
             else
-              exit 1
+              echo "The snapshots branch is configured not to run for this release"
+              exit -1
             fi
             echo "::set-output name=version::${{ needs.Get-Properties.outputs.extra-branch-curse-version }}"
           else
