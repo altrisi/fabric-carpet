@@ -38,7 +38,7 @@ jobs:
       - name: Process property for matrix
         id: processmatrix
         run: |
-          if ${{ !steps.properties.outputs.release-extra-branch }}; then
+          if ! ${{ steps.properties.outputs.release-extra-branch }}; then
             echo "::set-output name=matrix-to-exclude::Snapshots"
           fi
   Build-And-Publish:
