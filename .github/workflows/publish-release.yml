@@ -110,6 +110,14 @@ jobs:
           display_name: Carpet Mod v${{ needs.Get-Properties.outputs.carpet-version }} for ${{ steps.getbranchinfo.outputs.version }}
           game_versions: ${{ steps.getbranchinfo.outputs.version }}
           release_type: ${{ needs.Get-Properties.outputs.release-type }}
+      - name: Debug Curse(d) info
+        run: |
+          echo "token: None, why do I even add this"
+          echo "file_path: ${{ steps.findjar.outputs.jarname }}"
+          echo "changelog: ${{ github.event.release.body }}"
+          echo "display_name: Carpet Mod v${{ needs.Get-Properties.outputs.carpet-version }} for ${{ steps.getbranchinfo.outputs.version }}"
+          echo "game_versions: ${{ steps.getbranchinfo.outputs.version }}"
+          echo "release_type: ${{ needs.Get-Properties.outputs.release-type }}"
   Merge-Scarpet-Docs:
     runs-on: ubuntu-latest
     steps:
