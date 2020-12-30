@@ -1,4 +1,9 @@
+<img src="./src/main/resources/assets/carpet/icon.png" align="right" width="128px"/>
+
 # Fabric Carpet
+
+![Development Builds](https://github.com/gnembon/fabric-carpet/workflows/Development%20Builds/badge.svg)
+[![CurseForge downloads](http://cf.way2muchnoise.eu/full_349239_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/carpet)
 
 Cause all carpets are made of fabric?  
 This is the [Fabric](https://fabricmc.net/) version of Carpet Mod, for Minecraft 1.14.X, 1.15.X, 1.16.X and above.  
