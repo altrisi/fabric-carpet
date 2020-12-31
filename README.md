@@ -28,8 +28,6 @@ For core carpet functionality, this is the right place. Check available download
 
 Check [carpet-extra](https://github.com/gnembon/carpet-extra/) add-on mod for more whacky and crazy features, including autocrafting, block-placing dispensers, and even chicken-shearing!
 
-<img src="https://raw.githubusercontent.com/gnembon/carpet-autoCraftingTable/master/src/main/resources/assets/modid/icon.png" align="right" width="128px"/>
-
 ## auto crafting table
 
 Due to compatibility issues with vanilla and other mods, download [auto crafting table](https://github.com/gnembon/carpet-autoCraftingTable/releases) by Skyrising as a separate add-on to carpet
@@ -37,8 +35,6 @@ Due to compatibility issues with vanilla and other mods, download [auto crafting
 ## scarpet app store
 
 If you want to browse or contribute to the scarpet app store check available apps, go [here](https://github.com/gnembon/scarpet), its free!
-
-<img src="https://raw.githubusercontent.com/gnembon/quick-carpet/master/src/main/resources/assets/carpet/icon.png" align="right" width="128px"/>
 
 ## quick-carpet
 
