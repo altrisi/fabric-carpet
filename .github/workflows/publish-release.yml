@@ -97,6 +97,7 @@ jobs:
           asset_name: ${{ steps.findjar.outputs.jarname }}
           asset_content_type: application/java-archive
       - name: Upload to Curseforge
+        continue-on-error: true
         uses: itsmeow/curseforge-upload@v3
         with:
           token: ${{ secrets.CF_API_TOKEN }}
@@ -108,6 +109,14 @@ jobs:
           display_name: Carpet Mod v${{ needs.Get-Properties.outputs.carpet-version }} for ${{ steps.getbranchinfo.outputs.version }}
           game_versions: 7499,4458,${{ steps.getbranchinfo.outputs.version }} #Fabric,Java 8,[version for the branch]
           release_type: ${{ needs.Get-Properties.outputs.release-type }}
+      - name: Ask Gradle to publish
+        run: ./gradlew publish
+      - name: Save publish folder in artifacts
+      - name: Save build artifacts in the action
+        uses: actions/upload-artifact@v2
+        with:
+          name: Publishing artifacts for ${{ matrix.branch }}
+          path: publish/carpet/fabric-carpet/
   Merge-Scarpet-Docs:
     runs-on: ubuntu-latest
     steps:
