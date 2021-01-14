@@ -33,7 +33,7 @@ jobs:
           do
             result=$(sed -n "/^[[:space:]]*$property[[:space:]]*=[[:space:]]*/s/^[[:space:]]*$property[[:space:]]*=[[:space:]]*//p" "$path")
             echo "$property: $result"
-            echo ::set-output name=$property::"$result"
+            echo "::set-output name=$property::$result"
           done
       - name: Process property for matrix
         id: processmatrix
