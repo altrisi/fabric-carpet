@@ -10,7 +10,7 @@ jobs:
       release-type: ${{ steps.type.outputs.release-type }}
       carpet-version: ${{ steps.properties.outputs.mod_version }}
       minecraft-version: ${{ steps.properties.outputs.minecraft_version }}
-      curse-versions: $${{ steps.properties.outputs.release-curse-versions }}
+      curse-versions: ${{ steps.properties.outputs.release-curse-versions }}
       matrix-exclude-branch: ${{ steps.processmatrix.outputs.matrix-to-exclude }}
       extra-branch-name: ${{ steps.properties.outputs.release-extra-branch-name }}
       extra-branch-curse-version: ${{ steps.properties.outputs.release-extra-curse-version }}
@@ -33,8 +33,7 @@ jobs:
           do
             result=$(sed -n "/^[[:space:]]*$property[[:space:]]*=[[:space:]]*/s/^[[:space:]]*$property[[:space:]]*=[[:space:]]*//p" "$path")
             echo "$property: $result"
-            echo "::set-output name=$property::$result"
-            echo "set-output name=$property::$result" #Test
+            echo ::set-output name=$property::"$result"
           done
       - name: Process property for matrix
         id: processmatrix
@@ -61,8 +60,6 @@ jobs:
           else
             echo "::set-output name=version::${{ needs.Get-Properties.outputs.minecraft-version }}"
             echo "::set-output name=curse-versions:: ${{ needs.Get-Properties.outputs.curse-versions }}"
-            echo ${{ needs.Get-Properties.outputs.curse-versions }}
-            echo "${{ needs.Get-Properties.outputs.curse-versions }}"
           fi
       - name: Checkout the sources
         uses: actions/checkout@v2
@@ -121,7 +118,6 @@ jobs:
           echo "changelog: ${{ github.event.release.body }}"
           echo "display_name: Carpet Mod v${{ needs.Get-Properties.outputs.carpet-version }} for ${{ steps.getbranchinfo.outputs.version }}"
           echo "game_versions: 7499,4458,${{ steps.getbranchinfo.outputs.curse-versions }}"
-          echo ${{ steps.getbranchinfo.outputs.curse-versions }}
           echo "release_type: ${{ needs.Get-Properties.outputs.release-type }}"
       - name: Ask Gradle to publish
         run: ./gradlew publish
