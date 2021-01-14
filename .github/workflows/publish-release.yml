@@ -118,7 +118,8 @@ jobs:
           echo "changelog: ${{ github.event.release.body }}"
           echo "display_name: Carpet Mod v${{ needs.Get-Properties.outputs.carpet-version }} for ${{ steps.getbranchinfo.outputs.version }}"
           echo "game_versions: 7499,4458,${{ steps.getbranchinfo.outputs.curse-versions }}"
-          echo "release_type: ${{ needs.Get-Properties.outputs.release-type }}":  
+          echo ${{ steps.getbranchinfo.outputs.curse-versions }}
+          echo "release_type: ${{ needs.Get-Properties.outputs.release-type }}"
       - name: Ask Gradle to publish
         run: ./gradlew publish
       - name: Save publish folder in action's artifacts # Remove when automated
