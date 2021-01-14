@@ -59,7 +59,9 @@ jobs:
             echo "::set-output name=curse-versions::${{ needs.Get-Properties.outputs.extra-branch-curse-version }}"
           else
             echo "::set-output name=version::${{ needs.Get-Properties.outputs.minecraft-version }}"
-            echo "::set-output name=curse-versions::${{ needs.Get-Properties.outputs.curse-versions }}"
+            echo "::set-output name=curse-versions:: ${{ needs.Get-Properties.outputs.curse-versions }}"
+            echo ${{ needs.Get-Properties.outputs.curse-versions }}
+            echo "${{ needs.Get-Properties.outputs.curse-versions }}"
           fi
       - name: Checkout the sources
         uses: actions/checkout@v2
