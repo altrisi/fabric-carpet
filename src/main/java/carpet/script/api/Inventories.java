@@ -3,7 +3,11 @@ package carpet.script.api;
 import carpet.fakes.IngredientInterface;
 import carpet.fakes.RecipeManagerInterface;
 import carpet.script.CarpetContext;
+import carpet.script.Context;
 import carpet.script.Expression;
+import carpet.script.annotation.Locator;
+import carpet.script.annotation.Param;
+import carpet.script.annotation.ScarpetFunction;
 import carpet.script.argument.FunctionArgument;
 import carpet.script.exception.InternalExpressionException;
 import carpet.script.exception.ThrowStatement;
@@ -51,6 +55,7 @@ import net.minecraft.util.registry.Registry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -395,37 +400,7 @@ public class Inventories {
             }
             return new NumericValue(item.getStack().getCount());
         });
-
-        expression.addContextFunction("create_screen",-1, (c, t, lv) ->
-        {
-            if(lv.size() < 2) throw new InternalExpressionException("'create_screen' expected at least two arguments");
-            Value type = lv.get(0);
-            Text name = FormattedTextValue.getTextByValue(lv.get(1));
-            FunctionValue function = null;
-            if(lv.size() > 2)
-                function = FunctionArgument.findIn(c, expression.module, lv, 2, true, false).function;
-
-            return new ScreenHandlerValue(type,name,function,c);
-        });
-
-        expression.addContextFunction("open_screen",2, (c, t, lv) ->
-        {
-            Value targets = lv.get(0);
-            if (!(targets instanceof ListValue)) targets = ListValue.of(targets);
-            MinecraftServer server = ((CarpetContext) c).s.getMinecraftServer();
-            Stream<ServerPlayerEntity> players = ((ListValue) targets).getItems().stream().map(target -> {
-                ServerPlayerEntity player = EntityValue.getPlayerByValue(server, target);
-                if (player == null) throw new InternalExpressionException("'open_screen' requires a valid online player or a list of players as first argument. "+target.getString()+" is not a player.");
-                return player;
-            });
-            if(lv.get(1) instanceof ScreenHandlerValue) {
-                ScreenHandlerValue screenHandlerValue = (ScreenHandlerValue) lv.get(1);
-                players.forEach(screenHandlerValue::showScreen);
-            } else if(lv.get(1).isNull()) {
-                players.forEach(ServerPlayerEntity::closeHandledScreen);
-            }
-            return Value.TRUE;
-        });
+        
     }
 
     private static void syncPlayerInventory(NBTSerializableValue.InventoryLocator inventory, int int_1)
@@ -439,5 +414,21 @@ public class Inventories {
                     inventory.inventory.getStack(int_1)
             ));
         }
+    }
+    
+    @ScarpetFunction(maxParams = 3)
+    public ScreenHandlerValue create_screen(Context c, Value type, Text name, @Locator.Function(allowNone = true, checkArgs = false) FunctionArgument callback)
+    {
+        FunctionValue function = callback.function;
+        return new ScreenHandlerValue(type, name, function, c);
+    }
+    
+    @ScarpetFunction(maxParams = 2)
+    public void open_screen(@Param.AllowSingleton List<ServerPlayerEntity> players, Optional<ScreenHandlerValue> screenHandler)
+    {
+        if (screenHandler.isPresent())
+            players.forEach(screenHandler.get()::showScreen);
+        else
+            players.forEach(ServerPlayerEntity::closeHandledScreen);
     }
 }

@@ -13,6 +13,7 @@ import carpet.script.value.ListValue;
 import carpet.script.value.MapValue;
 import carpet.script.value.NBTSerializableValue;
 import carpet.script.value.NumericValue;
+import carpet.script.value.ScreenHandlerValue;
 import carpet.script.value.StringValue;
 import carpet.script.value.ThreadValue;
 import carpet.script.value.Value;
@@ -44,6 +45,7 @@ public final class ValueCaster<R> implements ValueConverter<R> // R always exten
         register(NumericValue.class, "number");
         register(BooleanValue.class, "boolean");
         register(StringValue.class, "string");
+        register(ScreenHandlerValue.class, "screen handler");
         register(ThreadValue.class, "thread");
     }
 
