@@ -427,7 +427,7 @@ public class WorldAccess {
                 BlockPos pos = ((BlockValue) v).getPos();
                 if (pos == null)
                     throw new InternalExpressionException("Cannot fetch position of an unrealized block");
-                return ListValue.of(new NumericValue(pos.getX()), new NumericValue(pos.getY()), new NumericValue(pos.getZ()));
+                return ValueConversions.of(pos);
             }
             else if (v instanceof EntityValue)
             {
@@ -1287,7 +1287,7 @@ public class WorldAccess {
                     BlockBox box = start.setBoundingBoxFromChildren();
                     structureList.put(
                             new StringValue(NBTSerializableValue.nameFromRegistryId(Registry.STRUCTURE_FEATURE.getId(entry.getKey()))),
-                            ListValue.of(ListValue.fromTriple(box.getMinX(), box.getMinY(), box.getMinZ()), ListValue.fromTriple(box.getMaxX(), box.getMaxY(), box.getMaxZ()))
+                            ValueConversions.of(box)
                     );
                 }
                 return MapValue.wrap(structureList);

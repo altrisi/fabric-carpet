@@ -60,7 +60,7 @@ public class NumericValue extends Value
             if (Double.isNaN(value)) return "NaN";
             if (abs(value) < epsilon) return (signum(value) < 0)?"-0":"0"; //zero rounding fails with big decimals
             // dobules have 16 point precision, 12 is plenty to display
-            return BigDecimal.valueOf(value).round(displayRounding).stripTrailingZeros().toPlainString();
+            return BigDecimal.valueOf(value).round(displayRounding).toPlainString();
         }
         catch (NumberFormatException exc)
         {
@@ -166,7 +166,7 @@ public class NumericValue extends Value
     @Override
     public Value clone()
     {
-        return new NumericValue(value, longValue);
+        return this;
     }
 
     @Override
@@ -213,7 +213,7 @@ public class NumericValue extends Value
     public NumericValue(String value)
     {
         BigDecimal decimal = new BigDecimal(value);
-        if (decimal.stripTrailingZeros().scale() <= 0)
+        if (decimal.scale() <= 0)
         {
             try
             {
@@ -225,8 +225,7 @@ public class NumericValue extends Value
     }
     public NumericValue(long value)
     {
-        this.longValue = value;
-        this.value = (double)value;
+        this((double)value, value);
     }
 
     @Override

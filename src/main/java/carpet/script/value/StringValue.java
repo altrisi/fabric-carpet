@@ -5,7 +5,7 @@ import net.minecraft.nbt.NbtElement;
 
 public class StringValue extends Value
 {
-    public static Value EMPTY = StringValue.of("");
+    public static final Value EMPTY = StringValue.of("");
 
     private String str;
 
@@ -22,7 +22,7 @@ public class StringValue extends Value
     @Override
     public Value clone()
     {
-        return new StringValue(str);
+        return this;
     }
 
     public StringValue(String str)

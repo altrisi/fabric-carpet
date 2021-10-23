@@ -54,8 +54,7 @@ public class Sys {
         {
             if (v instanceof NumericValue num)
             {
-                if (num.isInteger()) return new NumericValue(num.getLong());
-                return new NumericValue(num.getDouble());
+                return num;
             }
             if (v instanceof ListValue || v instanceof MapValue)
             {
