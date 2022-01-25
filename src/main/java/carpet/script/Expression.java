@@ -96,7 +96,7 @@ public class Expression
         functionalEquivalence.put(operator, function);
     }
 
-    private final Map<String, Value> constants = Map.of(
+    private static final Map<String, Value> CONSTANTS = Map.of(
             "euler", Arithmetic.euler,
             "pi", Arithmetic.PI,
             "null", Value.NULL,
@@ -106,7 +106,7 @@ public class Expression
 
     protected Value getConstantFor(String surface)
     {
-        return constants.get(surface);
+        return CONSTANTS.get(surface);
     }
 
     public List<String> getExpressionSnippet(Tokenizer.Token token)

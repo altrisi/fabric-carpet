@@ -5,6 +5,8 @@ import carpet.script.exception.InternalExpressionException;
 import carpet.script.exception.ThrowStatement;
 import carpet.script.exception.Throwables;
 import carpet.utils.BlockInfo;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.MapColor;
 import net.minecraft.block.pattern.CachedBlockPosition;
@@ -54,7 +56,7 @@ public class ValueConversions
 {
     public static Value of(BlockPos pos)
     {
-        return ListValue.of(new NumericValue(pos.getX()), new NumericValue(pos.getY()), new NumericValue(pos.getZ()));
+        return ListValue.fromTriple(pos.getX(), pos.getY(), pos.getZ());
     }
 
     public static Value ofOptional(BlockPos pos)
@@ -65,7 +67,7 @@ public class ValueConversions
 
     public static Value of(Vec3d vec)
     {
-        return ListValue.of(new NumericValue(vec.x), new NumericValue(vec.y), new NumericValue(vec.z));
+        return ListValue.fromTriple(vec.x, vec.y, vec.z);
     }
 
     public static Value of(ColumnPos cpos) { return ListValue.of(new NumericValue(cpos.x), new NumericValue(cpos.z));}
@@ -176,9 +178,7 @@ public class ValueConversions
     {
         if (id == null) // should be Value.NULL
             return Value.NULL;
-        if (id.getNamespace().equals("minecraft"))
-            return new StringValue(id.getPath());
-        return new StringValue(id.toString());
+        return new StringValue(simplify(id));
     }
 
     public static String simplify(Identifier id)
@@ -351,7 +351,7 @@ public class ValueConversions
     }
 
 
-    private static final Map<Integer, ListValue> slotIdsToSlotParams = new HashMap<Integer, ListValue>() {{
+    private static final Int2ObjectMap<ListValue> slotIdsToSlotParams = new Int2ObjectOpenHashMap<ListValue>() {{
         int n;
         //covers blocks, player hotbar and inventory, and all default inventories
         for(n = 0; n < 54; ++n) {
@@ -391,7 +391,7 @@ public class ValueConversions
     public static Value ofVanillaSlotResult(int itemSlot)
     {
         Value ret = slotIdsToSlotParams.get(itemSlot);
-        if (ret == null) return ListValue.of(Value.NULL, NumericValue.of(itemSlot));
+        if (ret == null) return ListValue.of(Value.NULL, new NumericValue(itemSlot));
         return ret;
     }
 

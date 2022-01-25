@@ -28,17 +28,12 @@ public class NullValue extends NumericValue // TODO check nonsingleton code
         return false;
     }
 
-    @Override
-    public Value clone()
-    {
-        return new NullValue();
-    }
-    private NullValue() {super(0);}
+    private NullValue() {super(0L);}
 
     @Override
     public boolean equals(final Object o)
     {
-        return o instanceof NullValue;
+        return this == o;
     }
 
     @Override
