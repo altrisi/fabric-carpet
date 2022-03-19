@@ -145,8 +145,9 @@ public class CarpetSettings
     @Rule(
             desc = "Carpet command permission level. Can only be set via .conf file",
             category = CREATIVE,
-            validate = CarpetPermissionLevel.class,
-            options = {"ops", "2", "4"}
+            validate = {Validator._COMMAND_LEVEL_VALIDATOR.class, CarpetPermissionLevel.class},
+            options = {"ops", "2", "4"},
+            strict = false
     )
     public static String carpetCommandPermissionLevel = "ops";
 
