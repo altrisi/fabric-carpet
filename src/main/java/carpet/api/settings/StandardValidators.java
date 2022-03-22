@@ -29,16 +29,9 @@ public final class StandardValidators {
         public static final List<String> OPTIONS = List.of("true", "false", "ops", "0", "1", "2", "3", "4");
         @Override
         public String validate(CommandSourceStack source, CarpetRule<String> currentRule, String newValue, String userString) {
-            if (!OPTIONS.contains(newValue))
-            {
-                Messenger.m(source, "r Valid options for command type rules is 'true' or 'false'");
-                Messenger.m(source, "r Optionally you can choose 'ops' to only allow operators");
-                Messenger.m(source, "r or provide a custom required permission level");
-                return null;
-            }
             return newValue;
         }
-        @Override public String description() { return "Can be limited to 'ops' only, or a custom permission level";}
+        @Override public String description() { return "Can be limited to 'ops' only, true/false for everyone/no one, or a custom permission level";}
     }
     
     /**

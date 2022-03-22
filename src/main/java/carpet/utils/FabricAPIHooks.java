@@ -11,6 +11,7 @@ import net.fabricmc.loader.api.VersionParsingException;
 public class FabricAPIHooks {
 
     public static final boolean WORLD_RENDER_EVENTS = hasMod("fabric-rendering-v1", "1.5.0");
+    public static final boolean PERMISSIONS_API = hasMod("fabric-permissions-api-v0", "0.1-SNAPSHOT");
 
     private FabricAPIHooks() {
     }
@@ -27,16 +28,11 @@ public class FabricAPIHooks {
 
     private static boolean hasMod(String id, String minimumVersion) {
         return FabricLoader.getInstance().getModContainer(id).map(m -> {
-            Version version = m.getMetadata().getVersion();
-
-            if (version instanceof SemanticVersion) {
-                try {
-                    return ((SemanticVersion) version).compareTo(SemanticVersion.parse(minimumVersion)) >= 0;
-                } catch (VersionParsingException ignored) {
-                }
-            }
-
-            return false;
+        	try {
+        		return m.getMetadata().getVersion().compareTo(SemanticVersion.parse(minimumVersion)) >= 0;
+        	} catch (VersionParsingException e) {
+        		return false;
+        	}
         }).orElse(false);
     }
 }

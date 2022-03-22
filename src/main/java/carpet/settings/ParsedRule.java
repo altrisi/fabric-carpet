@@ -6,6 +6,7 @@ import carpet.api.settings.InvalidRuleValueException;
 import carpet.api.settings.RuleHelper;
 import carpet.api.settings.SettingsManager;
 import carpet.api.settings.StandardValidators;
+import carpet.utils.FabricAPIHooks;
 import carpet.utils.Messenger;
 import carpet.utils.TranslationKeys;
 import carpet.utils.Translations;
@@ -170,7 +171,6 @@ public final class ParsedRule<T> implements CarpetRule<T>, Comparable<ParsedRule
             throw new IllegalArgumentException("Couldn't access given field", e);
         }
         this.type = typedField.type();
-        this.isStrict = rule.strict();
         this.categories = List.of(rule.category());
         this.scarpetApp = rule.appSource();
         this.realSettingsManager = settingsManager;
@@ -243,6 +243,9 @@ public final class ParsedRule<T> implements CarpetRule<T>, Comparable<ParsedRule
             converter0 = converterFromMap;
         }
         this.converter = converter0;
+        
+        // Allow command rules to be handled via a permissions mod
+        this.isStrict = (rule.strict() && !(FabricAPIHooks.PERMISSIONS_API && options == StandardValidators.CommandLevelValidator.OPTIONS));
         
         // Language "constants"
         String nameKey = TranslationKeys.RULE_NAME_PATTERN.formatted(settingsManager().identifier(), name());
