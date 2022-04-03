@@ -4,6 +4,7 @@ import carpet.CarpetServer;
 import carpet.CarpetSettings;
 import carpet.api.settings.CarpetRule;
 import carpet.utils.CommandHelper;
+import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.RegistryAccess;
