@@ -121,7 +121,7 @@ jobs:
      - name: Publish to discord
        run: |
          BOT_TOKEN="${{ secrets.DISCORD_BOT_TOKEN }}"
-         NEWS_CHANNEL_ID="764948077659947018"
+         NEWS_CHANNEL_ID="967520511452143677"
          
          CONTENT=$(cat <<EOF
          **${{ github.event.release.name }}** has been released!
