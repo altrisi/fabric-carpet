@@ -95,6 +95,7 @@ jobs:
           asset_name: ${{ steps.findjar.outputs.jarname }}
           asset_content_type: application/java-archive
       - name: Upload to Curseforge
+        if: false
         uses: itsmeow/curseforge-upload@v3
         with:
           token: ${{ secrets.CF_API_TOKEN }}
@@ -113,6 +114,20 @@ jobs:
         with:
           name: Maven publishing artifacts for ${{ matrix.branch }}
           path: publish/carpet/fabric-carpet/
+  Publish-To-Discord:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Publish to discord
+       uses: appleboy/discord-action@0.0.3
+       with:
+         webhook_id: ${{ secrets.WEBHOOK_ID }}
+         webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
+         message: |
+           **${{ github.event.release.name }}** has been released!
+           
+           ${{ github.event.release.body }}
+         username: Carpet Releases
+         avatar_url: https://raw.githubusercontent.com/gnembon/fabric-carpet/master/src/main/resources/assets/carpet/icon.png
   Merge-Scarpet-Docs:
     runs-on: ubuntu-latest
     steps:
