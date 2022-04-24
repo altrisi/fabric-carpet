@@ -122,7 +122,7 @@ jobs:
        uses: altrisi/announce-n-crosspost@main
        with:
          bot-token: ${{ secrets.DISCORD_BOT_TOKEN }}
-         channel: 967520511452143677
+         channel: '967520511452143677'
          content: |
            **${{ github.event.release.name }}** has been released!
            
