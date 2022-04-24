@@ -119,7 +119,7 @@ jobs:
     #needs: [Build-And-Publish]
     steps:
      - name: Publish to discord
-       uses: altrisi/announce-n-crosspost@master
+       uses: altrisi/announce-n-crosspost@main
        with:
          bot-token: ${{ secrets.DISCORD_BOT_TOKEN }}
          channel: 967520511452143677
