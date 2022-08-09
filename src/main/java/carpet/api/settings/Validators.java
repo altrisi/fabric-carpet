@@ -3,6 +3,7 @@ package carpet.api.settings;
 import java.util.List;
 
 import carpet.utils.CommandHelper;
+import carpet.utils.Messenger;
 import net.minecraft.commands.CommandSourceStack;
 
 /**
@@ -24,8 +25,7 @@ public final class Validators {
      *
      */
     public static class CommandLevel extends Validator<String> {
-        @Deprecated(forRemoval = true) // internal use only, will be made pckg private when phasing out old api
-        public static final List<String> OPTIONS = List.of("true", "false", "ops", "0", "1", "2", "3", "4");
+        static final List<String> OPTIONS = List.of("true", "false", "ops", "0", "1", "2", "3", "4");
         @Override
         public String validate(CommandSourceStack source, CarpetRule<String> currentRule, String newValue, String userString) {
             if (!OPTIONS.contains(newValue))
@@ -63,5 +63,49 @@ public final class Validators {
         }
         @Override
         public String description() { return "Must be between 0 and 1";}
+    }
+
+    // Validators used for implementation details, such as adding info to the wiki page
+    static class Implementation {
+    	static class Command<T> extends Validator<T>
+        {
+            @Override
+            public T validate(CommandSourceStack source, CarpetRule<T> currentRule, T newValue, String string)
+            {
+                if (source != null)
+                    CommandHelper.notifyPlayersCommandsChanged(source.getServer());
+                return newValue;
+            }
+            @Override
+            public String description() { return "It has an accompanying command";}
+        }
+
+        // maybe remove this one and make printRulesToLog check for canBeToggledClientSide instead, though that may be too much hardcoding
+        static class Client<T> extends Validator<T>
+        {
+            @Override
+            public T validate(CommandSourceStack source, CarpetRule<T> currentRule, T newValue, String string)
+            {
+                return newValue;
+            }
+            @Override
+            public String description() { return "Its a client command so can be issued and potentially be effective when connecting to non-carpet/vanilla servers. " +
+                    "In these situations (on vanilla servers) it will only affect the executing player, so each player needs to type it" +
+                    " separately for the desired effect";}
+        }
+
+        static class Strict<T> extends Validator<T>
+        {
+            @Override
+            public T validate(CommandSourceStack source, CarpetRule<T> currentRule, T newValue, String string)
+            {
+                if (!currentRule.suggestions().contains(string))
+                {
+                    Messenger.m(source, "r Valid options: " + currentRule.suggestions().toString());
+                    return null;
+                }
+                return newValue;
+            }
+        }
     }
 }

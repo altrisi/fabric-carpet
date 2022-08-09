@@ -40,7 +40,6 @@ import carpet.CarpetServer;
 import carpet.CarpetSettings;
 import carpet.api.settings.Rule.Condition;
 import carpet.network.ServerNetworkHandler;
-import carpet.settings.ParsedRule;
 import carpet.utils.CommandHelper;
 import carpet.utils.Messenger;
 import carpet.utils.TranslationKeys;
@@ -69,7 +68,6 @@ import static net.minecraft.commands.SharedSuggestionProvider.suggest;
  * by using {@link #SettingsManager(String, String, String)} and returning it in your {@link CarpetExtension}'s
  * {@link CarpetExtension#extensionSettingsManager()} method.</p>
  */
-@SuppressWarnings({"deprecation", "removal"}) // remove after removing old system
 public class SettingsManager {
     private final Map<String, CarpetRule<?>> rules = new HashMap<>();
     private final String version;
@@ -176,26 +174,11 @@ public class SettingsManager {
     {
         // In the current translation system languages are not loaded this early. Ensure they are loaded
         Translations.updateLanguage();
-        boolean warned = false;
 
         nextRule: for (Field field : settingsClass.getDeclaredFields())
         {
-            Class<? extends Rule.Condition>[] conditions;
-            Rule newAnnotation = field.getAnnotation(Rule.class);
-            carpet.settings.Rule oldAnnotation = field.getAnnotation(carpet.settings.Rule.class);
-            if (newAnnotation != null) {
-                conditions = newAnnotation.conditions();
-            } else if (oldAnnotation != null) {
-                conditions = oldAnnotation.condition();
-                if (!warned) {
-                    CarpetSettings.LOG.warn("""
-                        Registering outdated rules for settings class '%s'!
-                        This won't be supported in the future and rules won't be registered!""".formatted(settingsClass.getName()));
-                    warned = true;
-                }
-            } else {
-                continue;
-            }
+            Rule annotation = field.getAnnotation(Rule.class);
+            Class<? extends Rule.Condition>[] conditions = annotation.conditions();
             for (Class<? extends Rule.Condition> condition : conditions) { //Should this be moved to ParsedRule.of?
                 try
                 {
@@ -538,7 +521,7 @@ public class SettingsManager {
             if (rule instanceof ParsedRule<?>)
             {
                 boolean preamble = false;
-                for (Validator<?> validator : ((ParsedRule<?>) rule).realValidators)
+                for (Validator<?> validator : ((ParsedRule<?>) rule).validators)
                 {
                     if (validator.description() != null)
                     {

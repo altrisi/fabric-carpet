@@ -1,9 +1,7 @@
 package carpet;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import carpet.commands.CounterCommand;
 import carpet.commands.DistanceCommand;
@@ -43,7 +41,7 @@ public class CarpetServer // static for now - easier to handle all around the co
     public static MinecraftServer minecraft_server;
     private static CommandDispatcher<CommandSourceStack> currentCommandDispatcher;
     public static CarpetScriptServer scriptServer;
-    public static carpet.settings.SettingsManager settingsManager; // to change type to api type, can't change right now because of binary and source compat
+    public static SettingsManager settingsManager; // to change type to api type, can't change right now because of binary and source compat
     public static final List<CarpetExtension> extensions = new ArrayList<>();
 
     // Separate from onServerLoaded, because a server can be loaded multiple times in singleplayer
@@ -77,7 +75,7 @@ public class CarpetServer // static for now - easier to handle all around the co
     // to register before this call in a ModInitializer (declared in fabric.mod.json)
     public static void onGameStarted()
     {
-        settingsManager = new carpet.settings.SettingsManager(CarpetSettings.carpetVersion, "carpet", "Carpet Mod");
+        settingsManager = new SettingsManager(CarpetSettings.carpetVersion, "carpet", "Carpet Mod");
         settingsManager.parseSettingsClass(CarpetSettings.class);
         extensions.forEach(CarpetExtension::onGameStarted);
         FabricAPIHooks.initialize();
@@ -219,15 +217,6 @@ public class CarpetServer // static for now - easier to handle all around the co
     {
         scriptServer.reload(server);
         extensions.forEach(e -> e.onReload(server));
-    }
-    
-    private static final Set<CarpetExtension> warnedOutdatedManagerProviders = new HashSet<>();
-    static void warnOutdatedManager(CarpetExtension ext)
-    {
-        if (!warnedOutdatedManagerProviders.contains(ext))
-            CarpetSettings.LOG.warn("""
-                    %s is providing a SettingsManager from an outdated method in CarpetExtension!
-                    This behaviour will not work in later Carpet versions and the manager won't be registered!""".formatted(ext.getClass().getName()));
     }
 }
 
