@@ -12,6 +12,7 @@ import carpet.script.Fluff.QuadFunction;
 import carpet.script.Fluff.QuinnFunction;
 import carpet.script.Fluff.SexFunction;
 import carpet.script.Fluff.TriFunction;
+import carpet.script.LineLocker.Blockable;
 import carpet.script.exception.BreakStatement;
 import carpet.script.exception.ContinueStatement;
 import carpet.script.exception.ExitStatement;
@@ -993,7 +994,7 @@ public class Expression
     }
 
 
-    private ExpressionNode RPNToParseTree(List<Tokenizer.Token> tokens, Context context)
+    private ExpressionNode RPNToParseTree(List<Tokenizer.Token> tokens, Context context) //TODO puede que sea esto
     {
         Stack<ExpressionNode> nodeStack = new Stack<>();
         for (final Tokenizer.Token token : tokens)
@@ -1010,7 +1011,17 @@ public class Expression
                 case OPERATOR:
                     final ExpressionNode v1 = nodeStack.pop();
                     final ExpressionNode v2 = nodeStack.pop();
-                    LazyValue result = (c,t) -> operators.get(token.surface).lazyEval(c, t,this, token, v2.op, v1.op).evalValue(c, t);
+                    Blockable blockable;
+                    if (context.host.locker != null) {
+                    	blockable = context.host.locker.registerLine(v2.token.lineno);
+                    } else {
+                    	blockable = null;
+                    }
+                    LazyValue result = (c,t) -> {
+                    	System.out.println("Hi from line " + v2.token.lineno + "! Surface: " + v2.token.surface + " . Outside line: " + token.lineno);
+                    	if (blockable != null) blockable.enterSection();
+                    	return operators.get(token.surface).lazyEval(c, t,this, token, v2.op, v1.op).evalValue(c, t);
+                    };
                     nodeStack.push(new ExpressionNode(result, List.of(v2, v1), token ));
                     break;
                 case VARIABLE:
@@ -1055,7 +1066,7 @@ public class Expression
                     if (nodeStack.peek() == ExpressionNode.PARAMS_START)
                     {
                         nodeStack.pop();
-                    };
+                    }
                     List<LazyValue> params = p.stream().map(n -> n.op).collect(Collectors.toList());
 
                     nodeStack.push(new ExpressionNode(

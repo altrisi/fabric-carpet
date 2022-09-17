@@ -23,11 +23,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public abstract class ScriptHost
 {
     private static final Map<Long, Random> randomizers = new Long2ObjectOpenHashMap<>();
+    public final LineLocker locker;
 
     public static Thread mainThread = null;
     private final Map<Value, ThreadPoolExecutor> executorServices = new HashMap<>();
@@ -124,6 +127,17 @@ public abstract class ScriptHost
         this.moduleData.put(code, moduleData);
         this.modules.put(code==null?null:code.name(), code);
         mainThread = Thread.currentThread();
+        if (main == null || parent != null) {
+        	locker = null;
+        	return;
+        }
+        Matcher m = Pattern.compile("(\r\n)|(\n)|(\r)").matcher(main.code());
+		int lines = 1;
+		while (m.find())
+		{
+		    lines ++;
+		}
+        locker = new LineLocker(lines + 1);
     }
 
     void initializeModuleGlobals(ModuleData md)
@@ -374,7 +388,7 @@ public abstract class ScriptHost
     public ThreadPoolExecutor getExecutor(Value pool)
     {
         if (inTermination) return null;
-        return executorServices.computeIfAbsent(pool, (v) -> (ThreadPoolExecutor) Executors.newCachedThreadPool());
+        return executorServices.computeIfAbsent(pool, (v) -> (ThreadPoolExecutor) Executors.newCachedThreadPool(r -> new ScarpetThread(r)));
     }
 
     public int taskCount()

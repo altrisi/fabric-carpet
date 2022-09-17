@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import carpet.commands.BreakpointCommand;
 import carpet.commands.CounterCommand;
 import carpet.commands.DistanceCommand;
 import carpet.commands.DrawCommand;
@@ -157,6 +158,8 @@ public class CarpetServer // static for now - easier to handle all around the co
         if (FabricLoader.getInstance().isDevelopmentEnvironment())
             TestCommand.register(dispatcher);
         // todo 1.16 - re-registerer apps if that's a reload operation.
+        
+        BreakpointCommand.registerCommand(dispatcher);
     }
 
     public static void onPlayerLoggedIn(ServerPlayer player)
