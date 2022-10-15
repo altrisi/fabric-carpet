@@ -451,6 +451,6 @@ public class Operators {
 
     // TODO remove, this is for traps while the new system is being tested
     static InternalExpressionException trap(String doing) {
-    	return new InternalExpressionException("Unexpected error while " + doing + "! Please report this to Carpet!");
+    	return new InternalExpressionException("Unexpected error while " + doing + "! Please report this for the test build!");
     }
 }

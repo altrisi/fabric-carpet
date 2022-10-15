@@ -47,7 +47,7 @@ import static carpet.api.settings.RuleCategory.CLIENT;
 @SuppressWarnings({"CanBeFinal", "removal"}) // removal should be removed after migrating rules to the new system
 public class CarpetSettings
 {
-    public static final String carpetVersion = "1.4.83+v220727";
+    public static final String carpetVersion = "1.4.83-boundout";
     public static final Logger LOG = LoggerFactory.getLogger("carpet");
     public static final ThreadLocal<Boolean> skipGenerationChecks = ThreadLocal.withInitial(() -> false);
     public static final ThreadLocal<Boolean> impendingFillSkipUpdates = ThreadLocal.withInitial(() -> false);
@@ -537,9 +537,21 @@ public class CarpetSettings
 
     @Rule(
             desc = "Enables scripts optimization",
-            category = SCARPET
+            category = SCARPET,
+            validate = DontDisableOptimizer.class
     )
     public static boolean scriptsOptimization = true;
+    
+    static class DontDisableOptimizer extends Validator<Boolean> {
+    	@Override
+    	public Boolean validate(CommandSourceStack source, CarpetRule<Boolean> changingRule, Boolean newValue, String userInput) {
+    		return newValue ? true : null;
+    	}
+    	@Override
+    	public String description() {
+    		return "The optimizer can't be disabled in this build";
+    	}
+    }
 
     @Rule(
             desc = "Location of the online repository of scarpet apps",
