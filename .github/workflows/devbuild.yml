@@ -12,13 +12,27 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Read relevant fields from gradle.properties
+      id: properties
+      run: | # From christian-draeger/read-properties, using the action makes it extremely messy until christian-draeger/read-properties#2
+        path='./gradle.properties'
+        for property in mod_version minecraft_version release-curse-versions release-extra-branch release-extra-branch-name release-extra-curse-version
+        do
+          result=$(sed -n "/^[[:space:]]*$property[[:space:]]*=[[:space:]]*/s/^[[:space:]]*$property[[:space:]]*=[[:space:]]*//p" "$path")
+          echo "$property: $result"
+          echo "$property=$result" >> $GITHUB_OUTPUT
+        done
     - uses: actions/github-script@v6
+      env:
+        LAST_RELEASE: ${{ steps.properties.outputs.mod_version }}
       with:
         script: |
+          const { LAST_RELEASE } = process.env;
+          console.log('Starting release of: ' + LAST_RELEASE);
           let release = (await github.rest.repos.listReleases({
             owner: context.repo.owner,
             repo: context.repo.repo,
             per_page: 2
           })).data[1];
           console.log('Previous release was: ' + release.name);
-          if (release.name.includes('1.4.92')) core.setFailed('Version number is the same as previous release!')
+          if (release.name.includes(LAST_RELEASE)) core.setFailed('Version number is the same as previous release!')
