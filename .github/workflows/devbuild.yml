@@ -16,9 +16,9 @@ jobs:
       with:
         script: |
           let release = (await github.rest.repos.listReleases({
-            owner: 'gnembon',
-            repo: 'fabric-carpet',
+            owner: context.repo.owner,
+            repo: context.repo.repo,
             per_page: 2
           })).data[1];
-          console.log(github.repository);
-          //if (release.name.includes('1.4.92')) core.setFailed('Version number is the same as previous release!')
+          console.log('Previous release was: ' + release.name);
+          if (release.name.includes('1.4.92')) core.setFailed('Version number is the same as previous release!')
