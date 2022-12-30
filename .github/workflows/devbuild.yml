@@ -15,7 +15,7 @@ jobs:
     - uses: actions/github-script@v6
       with:
         script: |
-          console.log(github.repos.listReleases);
+          console.log(github.repos);
           let release = github.repos.listReleases({
             owner: 'gnembon',
             repo: 'fabric-carpet',
