@@ -15,12 +15,11 @@ jobs:
     - uses: actions/github-script@v6
       with:
         script: |
-          let releases = await github.rest.repos.listReleases({
+          let release = await github.rest.repos.listReleases({
             owner: 'gnembon',
             repo: 'fabric-carpet',
             per_page: 2
-          });
-          console.log(releases);
-          console.log(releases[1]);
-          console.log(releases[1].title);
-          console.log(releases[1].title.includes('1.4.92'));
+          })[1];
+          console.log(release);
+          console.log(release.title);
+          console.log(release.title.includes('1.4.92'));
