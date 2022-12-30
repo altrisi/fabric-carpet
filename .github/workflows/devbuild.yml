@@ -20,5 +20,6 @@ jobs:
             repo: 'fabric-carpet',
             per_page: 2
           })).data[1];
+          console.log(typeof release);
           console.log(release.title);
           console.log(release.title.includes('1.4.92'));
