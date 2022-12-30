@@ -20,4 +20,5 @@ jobs:
             repo: 'fabric-carpet',
             per_page: 2
           })).data[1];
-          if (release.name.includes('1.4.92')) core.setFailed('Version number is the same as previous release!')
+          console.log(github.repository);
+          //if (release.name.includes('1.4.92')) core.setFailed('Version number is the same as previous release!')
