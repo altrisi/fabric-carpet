@@ -28,14 +28,13 @@ jobs:
       with:
         script: |
           const { READ_VERSION } = process.env;
-          console.debug('Read version is: ' + READ_VERSION);
+          console.log('Read version is: ' + READ_VERSION);
           let releases = (await github.rest.repos.listReleases({
             owner: context.repo.owner,
             repo: context.repo.repo
           })).data;
           console.log('Previous release was: ' + releases[1].name);
           for (let release of releases.slice(1)) {
-            console.debug('Checking against ' + release.name);
             if (release.name.includes(READ_VERSION))
               core.setFailed('Version number is the same as a previous release!')
           }
