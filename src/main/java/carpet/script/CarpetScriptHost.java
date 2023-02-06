@@ -987,12 +987,12 @@ public class CarpetScriptHost extends ScriptHost
 
     private void dumpState()
     {
-        Module.saveData(main, globalState);
+        Module.saveData(main, globalState, this.scriptServer());
     }
 
     private Tag loadState()
     {
-        return Module.getData(main);
+        return Module.getData(main, this.scriptServer());
     }
 
     public Tag readFileTag(final FileArgument fdesc)
@@ -1061,7 +1061,7 @@ public class CarpetScriptHost extends ScriptHost
 
     public boolean applyActionForResource(final String path, final boolean shared, final Consumer<Path> action)
     {
-        final FileArgument fdesc = FileArgument.resourceFromPath(path, FileArgument.Reason.CREATE, shared);
+        final FileArgument fdesc = FileArgument.resourceFromPath(this, path, FileArgument.Reason.CREATE, shared);
         return fdesc.findPathAndApply(main, action);
     }
 

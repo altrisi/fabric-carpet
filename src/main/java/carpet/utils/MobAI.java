@@ -13,6 +13,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -38,10 +39,10 @@ public class MobAI
         return currentTrackers.contains(type);
     }
 
-    public static void clearTracking(EntityType<? extends Entity> etype)
+    public static void clearTracking(final MinecraftServer server, EntityType<? extends Entity> etype)
     {
         aiTrackers.remove(etype);
-        for(ServerLevel world : CarpetServer.minecraft_server.getAllLevels() )
+        for(ServerLevel world : server.getAllLevels() )
         {
             for (Entity e: world.getEntities(etype, Entity::hasCustomName))
             {

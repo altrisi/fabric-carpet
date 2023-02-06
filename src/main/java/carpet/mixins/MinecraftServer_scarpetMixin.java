@@ -2,6 +2,7 @@ package carpet.mixins;
 
 import carpet.fakes.MinecraftServerInterface;
 import carpet.helpers.TickSpeed;
+import carpet.script.CarpetScriptServer;
 import net.minecraft.Util;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
@@ -31,6 +32,8 @@ import static carpet.script.CarpetEventServer.Event.TICK;
 @Mixin(MinecraftServer.class)
 public abstract class MinecraftServer_scarpetMixin extends ReentrantBlockableEventLoop<TickTask> implements MinecraftServerInterface
 {
+    private CarpetScriptServer scriptServer;
+
     public MinecraftServer_scarpetMixin(String string_1)
     {
         super(string_1);
@@ -93,9 +96,9 @@ public abstract class MinecraftServer_scarpetMixin extends ReentrantBlockableEve
     {
         if (!TickSpeed.process_entities)
             return;
-        TICK.onTick();
-        NETHER_TICK.onTick();
-        ENDER_TICK.onTick();
+        TICK.onTick((MinecraftServer) (Object) this);
+        NETHER_TICK.onTick((MinecraftServer) (Object) this);
+        ENDER_TICK.onTick((MinecraftServer) (Object) this);
     }
 
     @Override
@@ -112,5 +115,17 @@ public abstract class MinecraftServer_scarpetMixin extends ReentrantBlockableEve
     public MinecraftServer.ReloadableResources getResourceManager()
     {
         return resources;
+    }
+
+    @Override
+    public void addScriptServer(final CarpetScriptServer scriptServer)
+    {
+        this.scriptServer = scriptServer;
+    }
+
+    @Override
+    public CarpetScriptServer getScriptServer()
+    {
+        return scriptServer;
     }
 }

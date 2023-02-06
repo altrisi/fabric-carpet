@@ -51,6 +51,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
@@ -434,11 +435,10 @@ public class CarpetEventServer
         public static final Event START = new Event("server_starts", 0, true)
         {
             @Override
-            public void onTick()
+            public void onTick(final MinecraftServer server)
             {
                 handler.call(Collections::emptyList, () ->
-                        CarpetServer.minecraft_server.createCommandSourceStack().
-                                withLevel(CarpetServer.minecraft_server.getLevel(Level.OVERWORLD))
+                        server.createCommandSourceStack().withLevel(server.getLevel(Level.OVERWORLD))
                 );
             }
         };
@@ -446,11 +446,10 @@ public class CarpetEventServer
         public static final Event SHUTDOWN = new Event("server_shuts_down", 0, true)
         {
             @Override
-            public void onTick()
+            public void onTick(final MinecraftServer server)
             {
                 handler.call(Collections::emptyList, () ->
-                        CarpetServer.minecraft_server.createCommandSourceStack().
-                                withLevel(CarpetServer.minecraft_server.getLevel(Level.OVERWORLD))
+                        server.createCommandSourceStack().withLevel(server.getLevel(Level.OVERWORLD))
                 );
             }
         };
@@ -458,11 +457,10 @@ public class CarpetEventServer
         public static final Event TICK = new Event("tick", 0, true)
         {
             @Override
-            public void onTick()
+            public void onTick(final MinecraftServer server)
             {
                 handler.call(Collections::emptyList, () ->
-                        CarpetServer.minecraft_server.createCommandSourceStack().
-                                withLevel(CarpetServer.minecraft_server.getLevel(Level.OVERWORLD))
+                        server.createCommandSourceStack().withLevel(server.getLevel(Level.OVERWORLD))
                 );
             }
         };
@@ -475,11 +473,11 @@ public class CarpetEventServer
             }
 
             @Override
-            public void onTick()
+            public void onTick(final MinecraftServer server)
             {
                 handler.call(Collections::emptyList, () ->
-                        CarpetServer.minecraft_server.createCommandSourceStack().
-                                withLevel(CarpetServer.minecraft_server.getLevel(Level.NETHER))
+                        server.createCommandSourceStack().
+                                withLevel(server.getLevel(Level.NETHER))
                 );
             }
         };
@@ -492,11 +490,11 @@ public class CarpetEventServer
             }
 
             @Override
-            public void onTick()
+            public void onTick(final MinecraftServer server)
             {
                 handler.call(Collections::emptyList, () ->
-                        CarpetServer.minecraft_server.createCommandSourceStack().
-                                withLevel(CarpetServer.minecraft_server.getLevel(Level.END))
+                        server.createCommandSourceStack().
+                                withLevel(server.getLevel(Level.END))
                 );
             }
         };
@@ -507,7 +505,7 @@ public class CarpetEventServer
             {
                 handler.call(
                         () -> Arrays.asList(new NumericValue(chPos.x << 4), new NumericValue(chPos.z << 4)),
-                        () -> CarpetServer.minecraft_server.createCommandSourceStack().withLevel(world)
+                        () -> world.getServer().createCommandSourceStack().withLevel(world)
                 );
             }
         };
@@ -518,7 +516,7 @@ public class CarpetEventServer
             {
                 handler.call(
                         () -> Arrays.asList(new NumericValue(chPos.x << 4), new NumericValue(chPos.z << 4)),
-                        () -> CarpetServer.minecraft_server.createCommandSourceStack().withLevel(world)
+                        () -> world.getServer().createCommandSourceStack().withLevel(world)
                 );
             }
         };
@@ -530,7 +528,7 @@ public class CarpetEventServer
             {
                 handler.call(
                         () -> Arrays.asList(new NumericValue(chPos.x << 4), new NumericValue(chPos.z << 4)),
-                        () -> CarpetServer.minecraft_server.createCommandSourceStack().withLevel(world)
+                        () -> world.getServer().createCommandSourceStack().withLevel(world)
                 );
             }
         };
@@ -1015,7 +1013,7 @@ public class CarpetEventServer
                         () -> Arrays.asList(
                                 new BlockValue(null, world, pos),
                                 flag > 0 ? Value.TRUE : Value.FALSE
-                        ), () -> CarpetServer.minecraft_server.createCommandSourceStack().withLevel(world)
+                        ), () -> world.getServer().createCommandSourceStack().withLevel(world)
                 );
             }
         };
@@ -1086,7 +1084,7 @@ public class CarpetEventServer
                                         b -> new BlockValue(world.getBlockState(b), world, b)
                                 )),
                                 ListValue.wrap(affectedEntities.stream().map(EntityValue::of))
-                        ), () -> CarpetServer.minecraft_server.createCommandSourceStack().withLevel(world)
+                        ), () -> world.getServer().createCommandSourceStack().withLevel(world)
                 );
             }
         };
@@ -1105,7 +1103,7 @@ public class CarpetEventServer
                                 EntityValue.of(attacker != null ? attacker.get() : Event.getExplosionCausingEntity(e)),
                                 StringValue.of(type.name().toLowerCase(Locale.ROOT)),
                                 BooleanValue.of(createFire)
-                        ), () -> CarpetServer.minecraft_server.createCommandSourceStack().withLevel(world)
+                        ), () -> world.getServer().createCommandSourceStack().withLevel(world)
                 );
             }
         };
@@ -1126,7 +1124,7 @@ public class CarpetEventServer
                     {
                         handler.call(
                                 () -> Collections.singletonList(new EntityValue(entity)),
-                                () -> CarpetServer.minecraft_server.createCommandSourceStack().withLevel((ServerLevel) entity.level).withPermission(CarpetSettings.runPermissionLevel)
+                                () -> entity.getServer().createCommandSourceStack().withLevel((ServerLevel) entity.level).withPermission(CarpetSettings.runPermissionLevel)
                         );
                     }
                 })).collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -1145,7 +1143,7 @@ public class CarpetEventServer
                     {
                         handler.call(
                                 () -> Arrays.asList(new EntityValue(entity), BooleanValue.of(created)),
-                                () -> CarpetServer.minecraft_server.createCommandSourceStack().withLevel((ServerLevel) entity.level).withPermission(CarpetSettings.runPermissionLevel)
+                                () -> entity.getServer().createCommandSourceStack().withLevel((ServerLevel) entity.level).withPermission(CarpetSettings.runPermissionLevel)
                         );
                     }
                 }))
@@ -1241,7 +1239,7 @@ public class CarpetEventServer
         }
 
         //stubs for calls just to ease calls in vanilla code so they don't need to deal with scarpet value types
-        public void onTick()
+        public void onTick(final MinecraftServer server)
         {
         }
 
@@ -1376,7 +1374,7 @@ public class CarpetEventServer
                             valArgs.add(ValueConversions.guess(world, o));
                         }
                         return valArgs;
-                    }, () -> CarpetServer.minecraft_server.createCommandSourceStack().withLevel(world)
+                    }, () -> world.getServer().createCommandSourceStack().withLevel(world)
             );
         }
     }

@@ -1,8 +1,7 @@
 package carpet.script.utils;
 
-import carpet.CarpetSettings;
-import carpet.helpers.ParticleDisplay;
 import carpet.network.ServerNetworkHandler;
+import carpet.script.CarpetScriptServer;
 import carpet.script.exception.InternalExpressionException;
 import carpet.script.exception.ThrowStatement;
 import carpet.script.exception.Throwables;
@@ -184,7 +183,7 @@ public class ShapeDispatcher
     {
         try
         {
-            return ParticleDisplay.getEffect(name, regs.lookupOrThrow(Registries.PARTICLE_TYPE));
+            return ParticleParser.getEffect(name, regs.lookupOrThrow(Registries.PARTICLE_TYPE));
         }
         catch (final IllegalArgumentException e)
         {
@@ -239,7 +238,7 @@ public class ShapeDispatcher
             final Param decoder = Param.of.get(key);
             if (decoder == null)
             {
-                CarpetSettings.LOG.info("Unknown parameter for shape: " + key);
+                CarpetScriptServer.LOG.info("Unknown parameter for shape: " + key);
                 return null;
             }
             final Value decodedValue = decoder.decode(tag.get(key), level);
@@ -248,13 +247,13 @@ public class ShapeDispatcher
         final Value shapeValue = options.get("shape");
         if (shapeValue == null)
         {
-            CarpetSettings.LOG.info("Shape id missing in " + String.join(", ", tag.getAllKeys()));
+            CarpetScriptServer.LOG.info("Shape id missing in " + String.join(", ", tag.getAllKeys()));
             return null;
         }
         final BiFunction<Map<String, Value>, RegistryAccess, ExpiringShape> factory = ExpiringShape.shapeProviders.get(shapeValue.getString());
         if (factory == null)
         {
-            CarpetSettings.LOG.info("Unknown shape: " + shapeValue.getString());
+            CarpetScriptServer.LOG.info("Unknown shape: " + shapeValue.getString());
             return null;
         }
         try
@@ -263,7 +262,7 @@ public class ShapeDispatcher
         }
         catch (final InternalExpressionException exc)
         {
-            CarpetSettings.LOG.info(exc.getMessage());
+            CarpetScriptServer.LOG.info(exc.getMessage());
         }
         return null;
     }
@@ -2022,7 +2021,7 @@ public class ShapeDispatcher
                         new NumericValue(e.getZ())
                 );
             }
-            CarpetSettings.LOG.error("Value: " + value.getString());
+            CarpetScriptServer.LOG.error("Value: " + value.getString());
             throw new InternalExpressionException("'" + p.id + "' requires a triple, block or entity to indicate position");
         }
 

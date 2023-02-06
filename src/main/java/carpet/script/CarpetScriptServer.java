@@ -141,7 +141,7 @@ public class CarpetScriptServer extends ScriptServer
                 addScriptHost(server.createCommandSourceStack(), moduleName, null, true, true, false, null);
             }
         }
-        CarpetEventServer.Event.START.onTick();
+        CarpetEventServer.Event.START.onTick(server);
     }
 
     public Module getModule(final String name, final boolean allowLibraries)
@@ -450,7 +450,7 @@ public class CarpetScriptServer extends ScriptServer
 
     public void onClose()
     {
-        CarpetEventServer.Event.SHUTDOWN.onTick();
+        CarpetEventServer.Event.SHUTDOWN.onTick(server);
         for (final CarpetScriptHost host : modules.values())
         {
             host.onClose();
@@ -473,6 +473,12 @@ public class CarpetScriptServer extends ScriptServer
                 }
             }
         });
+    }
+
+    @Override
+    public Path resolveResource(final String suffix)
+    {
+        return server.getWorldPath(LevelResource.ROOT).resolve("scripts/" + suffix);
     }
 
     private record TransferData(boolean perUser, Predicate<CommandSourceStack> commandValidator,
