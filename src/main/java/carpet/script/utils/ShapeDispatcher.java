@@ -1,10 +1,11 @@
 package carpet.script.utils;
 
-import carpet.network.ServerNetworkHandler;
 import carpet.script.CarpetScriptServer;
 import carpet.script.exception.InternalExpressionException;
 import carpet.script.exception.ThrowStatement;
 import carpet.script.exception.Throwables;
+import carpet.script.external.Carpet;
+import carpet.script.external.Vanilla;
 import carpet.script.language.Sys;
 import carpet.script.utils.shapes.ShapeDirection;
 import carpet.script.value.AbstractListValue;
@@ -148,7 +149,7 @@ public class ShapeDispatcher
         final List<ServerPlayer> alternativePlayers = new ArrayList<>();
         for (final ServerPlayer player : players)
         {
-            (ServerNetworkHandler.isValidCarpetPlayer(player) ? clientPlayers : alternativePlayers).add(player);
+            (Carpet.isValidCarpetPlayer(player) ? clientPlayers : alternativePlayers).add(player);
         }
         if (!clientPlayers.isEmpty())
         {
@@ -161,14 +162,14 @@ public class ShapeDispatcher
                 {
                     tagcount = 0;
                     final Tag finalTag = tag;
-                    clientPlayers.forEach(p -> ServerNetworkHandler.sendCustomCommand(p, "scShapes", finalTag));
+                    clientPlayers.forEach(p -> Vanilla.sendScarpetShapesDataToPlayer(p, finalTag));
                     tag = new ListTag();
                 }
             }
             final Tag finalTag = tag;
             if (!tag.isEmpty())
             {
-                clientPlayers.forEach(p -> ServerNetworkHandler.sendCustomCommand(p, "scShapes", finalTag));
+                clientPlayers.forEach(p -> Vanilla.sendScarpetShapesDataToPlayer(p, finalTag));
             }
         }
         if (!alternativePlayers.isEmpty())

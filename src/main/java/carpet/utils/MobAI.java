@@ -87,26 +87,4 @@ public class MobAI
             types = applicableTypes;
         }
     }
-
-    /**
-     * Not a replacement for living entity jump() - this barely is to allow other entities that can't jump in vanilla to 'jump'
-     * @param e
-     */
-    public static void genericJump(Entity e)
-    {
-        if (!e.isOnGround() && !e.isInWaterOrBubble() && !e.isInLava()) return;
-        float m = e.level.getBlockState(e.blockPosition()).getBlock().getJumpFactor();
-        float g = e.level.getBlockState(new BlockPos(e.getX(), e.getBoundingBox().minY - 0.5000001D, e.getZ())).getBlock().getJumpFactor();
-        float jumpVelocityMultiplier = (double) m == 1.0D ? g : m;
-        float jumpStrength = (0.42F * jumpVelocityMultiplier);
-        Vec3 vec3d = e.getDeltaMovement();
-        e.setDeltaMovement(vec3d.x, jumpStrength, vec3d.z);
-        if (e.isSprinting())
-        {
-            float u = e.getYRot() * 0.017453292F; // yaw
-            e.setDeltaMovement(e.getDeltaMovement().add((-Mth.sin(g) * 0.2F), 0.0D, (Mth.cos(u) * 0.2F)));
-        }
-        e.hasImpulse = true;
-    }
-
 }

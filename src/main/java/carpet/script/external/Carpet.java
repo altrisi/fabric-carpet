@@ -1,12 +1,19 @@
 package carpet.script.external;
 
+import carpet.CarpetServer;
 import carpet.CarpetSettings;
 import carpet.api.settings.CarpetRule;
+import carpet.api.settings.RuleHelper;
+import carpet.api.settings.SettingsManager;
 import carpet.api.settings.Validator;
 import carpet.fakes.MinecraftServerInterface;
 import carpet.logging.HUDController;
+import carpet.network.ServerNetworkHandler;
+import carpet.patches.EntityPlayerMPFake;
 import carpet.script.CarpetScriptServer;
 import carpet.script.utils.AppStoreManager;
+import carpet.script.value.MapValue;
+import carpet.script.value.StringValue;
 import carpet.utils.BlockInfo;
 import carpet.utils.CarpetProfiler;
 import carpet.utils.Messenger;
@@ -14,10 +21,14 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -77,6 +88,47 @@ public class Carpet
     public static void MinecraftServer_addScriptServer(final MinecraftServer server, final CarpetScriptServer scriptServer)
     {
         ((MinecraftServerInterface) server).addScriptServer(scriptServer);
+    }
+
+    public static boolean isValidCarpetPlayer(final ServerPlayer player)
+    {
+        return ServerNetworkHandler.isValidCarpetPlayer(player);
+    }
+
+    public static String getPlayerStatus(final ServerPlayer player)
+    {
+        return ServerNetworkHandler.getPlayerStatus(player);
+    }
+
+    public static MapValue getAllCarpetRules()
+    {
+        final Collection<CarpetRule<?>> rules = CarpetServer.settingsManager.getCarpetRules();
+        final MapValue carpetRules = new MapValue(Collections.emptyList());
+        rules.forEach(rule -> carpetRules.put(new StringValue(rule.name()), new StringValue(RuleHelper.toRuleString(rule.value()))));
+        CarpetServer.extensions.forEach(e -> {
+            final SettingsManager manager = e.extensionSettingsManager();
+            if (manager == null)
+            {
+                return;
+            }
+            manager.getCarpetRules().forEach(rule -> carpetRules.put(new StringValue(manager.identifier() + ":" + rule.name()), new StringValue(RuleHelper.toRuleString(rule.value()))));
+        });
+        return carpetRules;
+    }
+
+    public static String getCarpetVersion()
+    {
+        return CarpetSettings.carpetVersion;
+    }
+
+    @Nullable
+    public static String isModdedPlayer(final Player p)
+    {
+        if (p instanceof final EntityPlayerMPFake fake)
+        {
+            return fake.isAShadow ? "shadow" : "fake";
+        }
+        return null;
     }
 
     public static class ScarpetAppStoreValidator extends Validator<String>
