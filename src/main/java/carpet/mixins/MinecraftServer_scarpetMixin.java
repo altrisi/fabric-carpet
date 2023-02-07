@@ -77,11 +77,6 @@ public abstract class MinecraftServer_scarpetMixin extends ReentrantBlockableEve
         return storageSource;
     }
 
-    //@Override
-    //public ServerResources getResourceManager() {
-    //    return resources;
-    //}
-
     @Override
     public Map<ResourceKey<Level>, ServerLevel> getCMWorlds()
     {

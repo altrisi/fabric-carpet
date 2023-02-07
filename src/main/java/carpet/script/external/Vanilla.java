@@ -5,6 +5,7 @@ import carpet.fakes.BiomeInterface;
 import carpet.fakes.BlockPredicateInterface;
 import carpet.fakes.BlockStateArgumentInterface;
 import carpet.fakes.ChunkTicketManagerInterface;
+import carpet.fakes.CommandDispatcherInterface;
 import carpet.fakes.EntityInterface;
 import carpet.fakes.IngredientInterface;
 import carpet.fakes.InventoryBearerInterface;
@@ -29,10 +30,13 @@ import carpet.script.EntityEventsGroup;
 import carpet.script.value.MapValue;
 import carpet.script.value.StringValue;
 import carpet.script.value.Value;
+import carpet.utils.CommandHelper;
 import carpet.utils.SpawnReporter;
+import com.mojang.brigadier.CommandDispatcher;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
@@ -65,6 +69,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.PotentialCalculator;
 import net.minecraft.world.level.biome.Biome;
@@ -306,6 +311,46 @@ public class Vanilla
     public static DataSlot AbstractContainerMenu_getDataSlot(final AbstractContainerMenu handler, final int index)
     {
         return ((AbstractContainerMenuInterface) handler).getDataSlot(index);
+    }
+
+    public static void CommandDispatcher_unregisterCommand(final CommandDispatcher<CommandSourceStack> dispatcher, final String name)
+    {
+        ((CommandDispatcherInterface) dispatcher).carpet$unregister(name);
+    }
+
+    public static boolean MinecraftServer_doScriptsAutoload(final MinecraftServer server)
+    {
+        return CarpetSettings.scriptsAutoload;
+    }
+
+    public static void MinecraftServer_notifyPlayersCommandsChanged(final MinecraftServer server)
+    {
+        CommandHelper.notifyPlayersCommandsChanged(server);
+    }
+
+    public static boolean ScriptServer_scriptOptimizations(final MinecraftServer scriptServer)
+    {
+        return CarpetSettings.scriptsOptimization;
+    }
+
+    public static boolean ScriptServer_scriptDebugging(final MinecraftServer server)
+    {
+        return CarpetSettings.scriptsDebugging;
+    }
+
+    public static boolean ServerPlayer_canScriptACE(final CommandSourceStack player)
+    {
+        return CommandHelper.canUseCommand(player, CarpetSettings.commandScriptACE);
+    }
+
+    public static boolean ServerPlayer_canScriptGeneral(final CommandSourceStack player)
+    {
+        return CommandHelper.canUseCommand(player, CarpetSettings.commandScript);
+    }
+
+    public static int MinecraftServer_getFillLimit(final MinecraftServer server)
+    {
+        return Math.max(server.getGameRules().getInt(GameRules.RULE_COMMAND_MODIFICATION_BLOCK_LIMIT), CarpetSettings.fillLimit);
     }
 
     public record BlockPredicatePayload(BlockState state, TagKey<Block> tagKey, Map<Value, Value> properties, CompoundTag tag) {

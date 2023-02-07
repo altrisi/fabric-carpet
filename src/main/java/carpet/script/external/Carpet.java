@@ -7,9 +7,11 @@ import carpet.api.settings.RuleHelper;
 import carpet.api.settings.SettingsManager;
 import carpet.api.settings.Validator;
 import carpet.fakes.MinecraftServerInterface;
+import carpet.helpers.TickSpeed;
 import carpet.logging.HUDController;
 import carpet.network.ServerNetworkHandler;
 import carpet.patches.EntityPlayerMPFake;
+import carpet.script.CarpetExpression;
 import carpet.script.CarpetScriptServer;
 import carpet.script.utils.AppStoreManager;
 import carpet.script.value.MapValue;
@@ -129,6 +131,21 @@ public class Carpet
             return fake.isAShadow ? "shadow" : "fake";
         }
         return null;
+    }
+
+    public static boolean isTickProcessingPaused()
+    {
+        return !TickSpeed.process_entities;
+    }
+
+    public static void handleExtensionsAPI(final CarpetExpression expression)
+    {
+        CarpetServer.extensions.forEach(e -> e.scarpetApi(expression));
+    }
+
+    public static boolean getFillUpdates()
+    {
+        return CarpetSettings.fillUpdates;
     }
 
     public static class ScarpetAppStoreValidator extends Validator<String>
