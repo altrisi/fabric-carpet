@@ -18,6 +18,8 @@ import carpet.script.value.NumericValue;
 import carpet.script.value.Value;
 import carpet.script.value.ValueConversions;
 
+import javax.annotation.Nullable;
+
 /**
  * <p>A simple {@link ValueConverter} implementation that converts from a specified subclass of {@link Value} into {@code <R>} by using a given
  * function.</p>
@@ -104,6 +106,7 @@ public final class SimpleTypeConverter<T extends Value, R> implements ValueConve
         return (SimpleTypeConverter<Value, R>) byResult.get(outputType);
     }
 
+    @Nullable
     @Override
     @SuppressWarnings("unchecked") // more than checked. not using class.cast because then "method is too big" for inlining, because javac is useless
     public R convert(final Value value, final Context context)                                                          // and adds millions of casts. This one is even removed

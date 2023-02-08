@@ -13,6 +13,8 @@ import carpet.script.value.ListValue;
 import carpet.script.value.MapValue;
 import carpet.script.value.Value;
 
+import javax.annotation.Nullable;
+
 /**
  * <p>Converts a {@link MapValue} to a {@link Map}, converting all of its contents to their respective types.</p>
  * 
@@ -104,6 +106,7 @@ class MapConverter<K, V> implements ValueConverter<Map<K, V>>
             return acceptMultiParam;
         }
 
+        @Nullable
         @Override
         public Map<K, V> convert(final Value value, final Context context) {
             return value instanceof MapValue ? super.convert(value, context)
@@ -112,6 +115,7 @@ class MapConverter<K, V> implements ValueConverter<Map<K, V>>
         }
 
 
+        @Nullable
         private Map<K, V> convertList(final List<Value> valueList, final Context context)
         {
             if (valueList.size() % 2 == 1)
@@ -133,6 +137,7 @@ class MapConverter<K, V> implements ValueConverter<Map<K, V>>
             return map;
         }
 
+        @Nullable
         @Override
         public Map<K, V> checkAndConvert(final Iterator<Value> valueIterator, final Context context, final Context.Type theLazyT)
         {

@@ -56,7 +56,7 @@ public class Scoreboards
         {
             final CarpetContext cc = (CarpetContext) c;
             final Scoreboard scoreboard = cc.server().getScoreboard();
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 return ListValue.wrap(scoreboard.getObjectiveNames().stream().map(StringValue::new));
             }
@@ -96,7 +96,7 @@ public class Scoreboards
 
         expression.addContextFunction("scoreboard_remove", -1, (c, t, lv) ->
         {
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 throw new InternalExpressionException("'scoreboard_remove' requires at least one parameter");
             }
@@ -131,7 +131,7 @@ public class Scoreboards
         {
             final CarpetContext cc = (CarpetContext) c;
             final Scoreboard scoreboard = cc.server().getScoreboard();
-            if (lv.size() == 0 || lv.size() > 2)
+            if (lv.isEmpty() || lv.size() > 2)
             {
                 throw new InternalExpressionException("'scoreboard_add' should have one or two parameters");
             }
@@ -165,7 +165,7 @@ public class Scoreboards
                 }
                 Vanilla.Scoreboard_getObjectivesByCriterion(scoreboard).get(objective.getCriteria()).remove(objective);
                 Vanilla.Objective_setCriterion(objective, criterion);
-                (Vanilla.Scoreboard_getObjectivesByCriterion(scoreboard).computeIfAbsent(criterion, (criterion1) -> Lists.newArrayList())).add(objective);
+                (Vanilla.Scoreboard_getObjectivesByCriterion(scoreboard).computeIfAbsent(criterion, cr -> Lists.newArrayList())).add(objective);
                 scoreboard.onObjectiveAdded(objective);
                 return Value.FALSE;
             }
@@ -210,7 +210,7 @@ public class Scoreboards
                         }
                         Vanilla.Scoreboard_getObjectivesByCriterion(scoreboard).get(objective.getCriteria()).remove(objective);
                         Vanilla.Objective_setCriterion(objective, criterion);
-                        (Vanilla.Scoreboard_getObjectivesByCriterion(scoreboard).computeIfAbsent(criterion, (criterion1) -> Lists.newArrayList())).add(objective);
+                        (Vanilla.Scoreboard_getObjectivesByCriterion(scoreboard).computeIfAbsent(criterion, cr -> Lists.newArrayList())).add(objective);
                         scoreboard.onObjectiveAdded(objective);
                         return Value.TRUE;
                     }
@@ -302,7 +302,7 @@ public class Scoreboards
             }
             final CarpetContext cc = (CarpetContext) c;
             final ServerScoreboard scoreboard = cc.server().getScoreboard();
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 return ListValue.wrap(scoreboard.getTeamNames().stream().map(StringValue::of));
             }
@@ -317,7 +317,7 @@ public class Scoreboards
 
         expression.addContextFunction("team_add", -1, (c, t, lv) ->
         {
-            if (!(lv.size() < 3 && lv.size() > 0))
+            if (!(lv.size() < 3 && !lv.isEmpty()))
             {
                 throw new InternalExpressionException("'team_add' requires one or two parameters");
             }
@@ -354,7 +354,7 @@ public class Scoreboards
             {
                 return Value.FALSE;
             }
-            scoreboard.addPlayerToTeam(player, scoreboard.getPlayerTeam(teamName));
+            scoreboard.addPlayerToTeam(player, team);
             return Value.TRUE;
         });
 
@@ -363,12 +363,12 @@ public class Scoreboards
             final CarpetContext cc = (CarpetContext) c;
             final ServerScoreboard scoreboard = cc.server().getScoreboard();
             final Value teamVal = lv.get(0);
-            final String team = teamVal.getString();
-            if (scoreboard.getPlayerTeam(team) == null)
+            final PlayerTeam team = scoreboard.getPlayerTeam(teamVal.getString());
+            if (team == null)
             {
                 return Value.NULL;
             }
-            scoreboard.removePlayerTeam(scoreboard.getPlayerTeam(team));
+            scoreboard.removePlayerTeam(team);
             return Value.TRUE;
         });
 
@@ -546,7 +546,7 @@ public class Scoreboards
                 throw new InternalExpressionException("'bossbar' accepts max three arguments");
             }
 
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 return ListValue.wrap(bossBarManager.getEvents().stream().map(CustomBossEvent::getTextId).map(ResourceLocation::toString).map(StringValue::of));
             }
@@ -616,7 +616,7 @@ public class Scoreboards
                     }
                     if (propertyValue instanceof final ListValue list)
                     {
-                        list.getItems().forEach((v) -> {
+                        list.getItems().forEach(v -> {
                             final ServerPlayer player = EntityValue.getPlayerByValue(((CarpetContext) c).server(), propertyValue);
                             if (player != null)
                             {
@@ -642,7 +642,7 @@ public class Scoreboards
                     {
                         bossBar.removeAllPlayers();
                         list.getItems().forEach(v -> {
-                            ServerPlayer p = EntityValue.getPlayerByValue(((CarpetContext) c).server(), v);
+                            final ServerPlayer p = EntityValue.getPlayerByValue(((CarpetContext) c).server(), v);
                             if (p != null)
                             {
                                 bossBar.addPlayer(p);

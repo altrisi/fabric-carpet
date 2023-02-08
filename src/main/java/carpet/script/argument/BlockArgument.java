@@ -14,10 +14,12 @@ import java.util.NoSuchElementException;
 
 import net.minecraft.core.BlockPos;
 
+import javax.annotation.Nullable;
+
 public class BlockArgument extends Argument
 {
     public final BlockValue block;
-    public final String replacement;
+    @Nullable public final String replacement;
 
     private BlockArgument(final BlockValue b, final int o)
     {
@@ -26,7 +28,7 @@ public class BlockArgument extends Argument
         replacement = null;
     }
 
-    private BlockArgument(final BlockValue b, final int o, final String replacement)
+    private BlockArgument(final BlockValue b, final int o, @Nullable final String replacement)
     {
         super(o);
         block = b;
@@ -56,11 +58,11 @@ public class BlockArgument extends Argument
             //add conditional from string name
             if (optional && v1.isNull())
             {
-                return new BlockArgument(null, 1 + offset);
+                return new MissingBlockArgument(1 + offset, null);
             }
             if (anyString && v1 instanceof StringValue)
             {
-                return new BlockArgument(null, 1 + offset, v1.getString());
+                return new MissingBlockArgument(1 + offset, v1.getString());
             }
             if (acceptString && v1 instanceof StringValue)
             {
@@ -80,7 +82,6 @@ public class BlockArgument extends Argument
 
                 return new BlockArgument(
                         new BlockValue(
-                                null,
                                 c.level(),
                                 new BlockPos(pos.getX() + xpos, pos.getY() + ypos, pos.getZ() + zpos)
                         ),
@@ -91,7 +92,6 @@ public class BlockArgument extends Argument
             final int zpos = (int) NumericValue.asNumber(params.next()).getLong();
             return new BlockArgument(
                     new BlockValue(
-                            null,
                             c.level(),
                             new BlockPos(pos.getX() + xpos, pos.getY() + ypos, pos.getZ() + zpos)
                     ),
@@ -101,6 +101,14 @@ public class BlockArgument extends Argument
         catch (IndexOutOfBoundsException | NoSuchElementException e)
         {
             throw handleError(optional, acceptString);
+        }
+    }
+
+    public static class MissingBlockArgument extends BlockArgument
+    {
+        public MissingBlockArgument(final int o, @Nullable final String replacement)
+        {
+            super(BlockValue.NONE, o, replacement);
         }
     }
 

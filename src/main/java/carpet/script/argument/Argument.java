@@ -2,9 +2,9 @@ package carpet.script.argument;
 
 public abstract class Argument
 {
-    public int offset;
+    public final int offset;
 
-    protected Argument(int offset)
+    protected Argument(final int offset)
     {
         this.offset = offset;
     }

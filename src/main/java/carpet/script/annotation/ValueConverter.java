@@ -37,7 +37,7 @@ public interface ValueConverter<R>
      * @apiNote This method is intended to only be called when an error has occurred and therefore there is a need to print a stacktrace with some
      *          helpful usage instructions.
      */
-    String getTypeName();
+    @Nullable String getTypeName();
 
     /**
      * <p>Converts the given {@link Value} to {@code <R>}, which was defined when being registered.</p>
@@ -208,6 +208,7 @@ public interface ValueConverter<R>
      * @implNote This method's default implementation runs the {@link #convert(Value, Context)} function in the next {@link Value} ignoring {@link Context} and
      *           {@code theLazyT}.
      */
+    @Nullable
     default R checkAndConvert(final Iterator<Value> valueIterator, final Context context, final Context.Type contextType)
     {
         return !valueIterator.hasNext() ? null : convert(valueIterator.next(), context);

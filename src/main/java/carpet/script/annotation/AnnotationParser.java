@@ -197,26 +197,26 @@ public final class AnnotationParser
 
             this.isEffectivelyVarArgs = isMethodVarArgs || Arrays.stream(valueConverters).anyMatch(ValueConverter::consumesVariableArgs);
             this.minParams = Arrays.stream(valueConverters).mapToInt(ValueConverter::valueConsumption).sum(); // Note: In !varargs, this is params
-            int maxParams = this.minParams; // Unlimited == Integer.MAX_VALUE
+            int setMaxParams = this.minParams; // Unlimited == Integer.MAX_VALUE
             if (this.isEffectivelyVarArgs)
             {
-                maxParams = method.getAnnotation(ScarpetFunction.class).maxParams();
-                if (maxParams == UNDEFINED_PARAMS)
+                setMaxParams = method.getAnnotation(ScarpetFunction.class).maxParams();
+                if (setMaxParams == UNDEFINED_PARAMS)
                 {
                     throw new IllegalArgumentException("No maximum number of params specified for " + name + ", use ScarpetFunction.UNLIMITED_PARAMS for unlimited. "
                             + "Provided in " + originClass);
                 }
-                if (maxParams == ScarpetFunction.UNLIMITED_PARAMS)
+                if (setMaxParams == ScarpetFunction.UNLIMITED_PARAMS)
                 {
-                    maxParams = Integer.MAX_VALUE;
+                    setMaxParams = Integer.MAX_VALUE;
                 }
-                if (maxParams < this.minParams)
+                if (setMaxParams < this.minParams)
                 {
                     throw new IllegalArgumentException("Provided maximum number of params for " + name + " is smaller than method's param count."
                             + "Provided in " + originClass);
                 }
             }
-            this.maxParams = maxParams;
+            this.maxParams = setMaxParams;
 
             // Why MethodHandles?
             // MethodHandles are blazing fast (in some situations they can even compile to a single invokeVirtual), but slightly complex to work with.
@@ -232,7 +232,7 @@ public final class AnnotationParser
                 MethodHandle tempHandle = MethodHandles.publicLookup().unreflect(method).asFixedArity().asSpreader(Object[].class, this.methodParamCount);
                 tempHandle = tempHandle.asType(tempHandle.type().changeReturnType(Object.class));
                 this.handle = Modifier.isStatic(method.getModifiers()) ? tempHandle : tempHandle.bindTo(instance.get());
-            } catch (IllegalAccessException e)
+            } catch (final IllegalAccessException e)
             {
                 throw new IllegalArgumentException(e);
             }

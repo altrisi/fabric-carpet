@@ -12,9 +12,9 @@ import java.util.concurrent.CompletionException;
 
 public class Threading
 {
-    public static void apply(Expression expression)
+    public static void apply(final Expression expression)
     {
-        //"overidden" native call to cancel if on main thread
+        //"overridden" native call to cancel if on main thread
         expression.addContextFunction("task_join", 1, (c, t, lv) -> {
             if (((CarpetContext) c).server().isSameThread())
             {
@@ -70,7 +70,7 @@ public class Threading
                 throw internal[0];
             }
             final Value ret = result[0]; // preventing from lazy evaluating of the result in case a future completes later
-            return (_c, _t) -> ret;
+            return (ct, tt) -> ret;
             // pass through placeholder
             // implmenetation should dock the task on the main thread.
         });

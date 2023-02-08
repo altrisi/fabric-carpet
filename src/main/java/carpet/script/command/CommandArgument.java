@@ -133,7 +133,7 @@ public abstract class CommandArgument
             new VanillaUnconfigurableArgument("block", BlockStateArgument::block,
                     (c, p) -> {
                         BlockInput result = BlockStateArgument.getBlock(c, p);
-                        return new BlockValue(result.getState(), c.getSource().getLevel(), null, Vanilla.BlockInput_getTag(result));
+                        return new BlockValue(result.getState(), c.getSource().getLevel(), Vanilla.BlockInput_getTag(result));
                     },
                     param -> (ctx, builder) -> ctx.getArgument(param, BlockStateArgument.class).listSuggestions(ctx, builder)
             ),

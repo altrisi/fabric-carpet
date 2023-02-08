@@ -1642,7 +1642,7 @@ public class ShapeDispatcher
             {
                 compoundTag2 = ((CompoundTag) tag).getCompound("TileEntityData");
             }
-            return new BlockValue(bs, level, null, compoundTag2);
+            return new BlockValue(bs, compoundTag2);
         }
     }
 

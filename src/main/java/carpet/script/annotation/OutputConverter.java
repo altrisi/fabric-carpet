@@ -23,6 +23,8 @@ import carpet.script.value.StringValue;
 import carpet.script.value.Value;
 import carpet.script.value.ValueConversions;
 
+import javax.annotation.Nullable;
+
 /**
  * <p>A converter from a given {@link Object} of type T into a {@link LazyValue}, used in order to convert the outputs of methods into usable Scarpet
  * values.</p>
@@ -90,7 +92,7 @@ public final class OutputConverter<T>
      * @param input The value to convert
      * @return The converted value
      */
-    public LazyValue convert(final T input)
+    public LazyValue convert(@Nullable final T input)
     {
         return input == null ? LazyValue.NULL : converter.apply(input);
     }

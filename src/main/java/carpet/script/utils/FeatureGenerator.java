@@ -142,7 +142,7 @@ public class FeatureGenerator
         return getDefaultFeature(structureFeature, world, pos);
     }
 
-    public static synchronized Boolean plopGrid(final Structure structureFeature, final ServerLevel world, final BlockPos pos)
+    public static synchronized boolean plopGrid(final Structure structureFeature, final ServerLevel world, final BlockPos pos)
     {
         return plopAnywhere(structureFeature, world, pos, world.getChunkSource().getGenerator(), true);
     }

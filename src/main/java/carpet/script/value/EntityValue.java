@@ -74,6 +74,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -102,7 +103,7 @@ public class EntityValue extends Value
         entity = e;
     }
 
-    public static Value of(final Entity e)
+    public static Value of(@Nullable final Entity e)
     {
         return e == null ? Value.NULL : new EntityValue(e);
     }
@@ -284,8 +285,8 @@ public class EntityValue extends Value
 
         public Value listValue(final RegistryAccess regs)
         {
-            final Registry<EntityType> entityRegs = regs.registryOrThrow(Registries.ENTITY_TYPE);
-            return ListValue.wrap(types.stream().map(et -> StringValue.of(nameFromRegistryId(entityRegs.getKey(et)))));
+            final Registry<EntityType<?>> entityRegs = regs.registryOrThrow(Registries.ENTITY_TYPE);
+            return ListValue.wrap(types.stream().map(et -> nameFromRegistryId(entityRegs.getKey(et))));
         }
 
         public static final Map<String, EntityClassDescriptor> byName = new HashMap<>()
@@ -389,7 +390,7 @@ public class EntityValue extends Value
         }};
     }
 
-    public Value get(final String what, final Value arg)
+    public Value get(final String what, @Nullable final Value arg)
     {
         if (!(featureAccessors.containsKey(what)))
         {
@@ -438,7 +439,7 @@ public class EntityValue extends Value
         put("display_name", (e, a) -> new FormattedTextValue(e.getDisplayName()));
         put("command_name", (e, a) -> new StringValue(e.getScoreboardName()));
         put("custom_name", (e, a) -> e.hasCustomName() ? new StringValue(e.getCustomName().getString()) : Value.NULL);
-        put("type", (e, a) -> new StringValue(nameFromRegistryId(e.getLevel().registryAccess().registryOrThrow(Registries.ENTITY_TYPE).getKey(e.getType()))));
+        put("type", (e, a) -> nameFromRegistryId(e.getLevel().registryAccess().registryOrThrow(Registries.ENTITY_TYPE).getKey(e.getType())));
         put("is_riding", (e, a) -> BooleanValue.of(e.isPassenger()));
         put("is_ridden", (e, a) -> BooleanValue.of(e.isVehicle()));
         put("passengers", (e, a) -> ListValue.wrap(e.getPassengers().stream().map(EntityValue::new)));
@@ -488,7 +489,7 @@ public class EntityValue extends Value
         put("immune_to_frost", (e, a) -> BooleanValue.of(!e.canFreeze()));
 
         put("invulnerable", (e, a) -> BooleanValue.of(e.isInvulnerable()));
-        put("dimension", (e, a) -> new StringValue(nameFromRegistryId(e.level.dimension().location()))); // getDimId
+        put("dimension", (e, a) -> nameFromRegistryId(e.level.dimension().location())); // getDimId
         put("height", (e, a) -> new NumericValue(e.getDimensions(Pose.STANDING).height));
         put("width", (e, a) -> new NumericValue(e.getDimensions(Pose.STANDING).width));
         put("eye_height", (e, a) -> new NumericValue(e.getEyeHeight()));
@@ -515,7 +516,7 @@ public class EntityValue extends Value
             }
             return Value.NULL;
         });
-        put("home", (e, a) -> e instanceof final Mob mob ? (mob.getRestrictRadius() > 0) ? new BlockValue(null, e.getCommandSenderWorld(), mob.getRestrictCenter()) : Value.FALSE : Value.NULL);
+        put("home", (e, a) -> e instanceof final Mob mob ? (mob.getRestrictRadius() > 0) ? new BlockValue(null, (ServerLevel) e.getLevel(), mob.getRestrictCenter()) : Value.FALSE : Value.NULL);
         put("spawn_point", (e, a) -> {
             if (e instanceof final ServerPlayer spe)
             {
@@ -703,7 +704,7 @@ public class EntityValue extends Value
                 {
                     return Value.NULL;
                 }
-                return new BlockValue(null, e.level, pos);
+                return new BlockValue(null, sp.getLevel(), pos);
             }
             return Value.NULL;
         });
@@ -818,7 +819,7 @@ public class EntityValue extends Value
                 case MISS:
                     return Value.NULL;
                 case BLOCK:
-                    return new BlockValue(null, e.getCommandSenderWorld(), ((BlockHitResult) hitres).getBlockPos());
+                    return new BlockValue((ServerLevel) e.getCommandSenderWorld(), ((BlockHitResult) hitres).getBlockPos());
                 case ENTITY:
                     return new EntityValue(((EntityHitResult) hitres).getEntity());
             }
@@ -861,7 +862,7 @@ public class EntityValue extends Value
         });
     }};
 
-    public void set(final String what, final Value toWhat)
+    public void set(final String what, @Nullable final Value toWhat)
     {
         if (!(featureModifiers.containsKey(what)))
         {

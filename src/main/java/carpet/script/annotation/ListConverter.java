@@ -10,6 +10,8 @@ import carpet.script.Context;
 import carpet.script.value.ListValue;
 import carpet.script.value.Value;
 
+import javax.annotation.Nullable;
+
 /**
  * <p>Converts a given {@link ListValue} into a {@link List} of values converted to {@code <T>}.</p>
  * 
@@ -32,12 +34,14 @@ final class ListConverter<T> implements ValueConverter<List<T>>
         return (allowSingletonCreation ? itemConverter.getTypeName() + " or " : "") + "list of " + itemConverter.getTypeName() + "s";
     }
 
+    @Nullable
     @Override
     public List<T> convert(final Value value, final Context context)
     {
         return value instanceof ListValue ? convertListValue((ListValue) value, context) : allowSingletonCreation ? convertSingleton(value, context) : null;
     }
 
+    @Nullable
     private List<T> convertListValue(final ListValue values, final Context context)
     {
         final List<T> list = new ArrayList<>(values.getItems().size());
@@ -53,6 +57,7 @@ final class ListConverter<T> implements ValueConverter<List<T>>
         return list;
     }
 
+    @Nullable
     private List<T> convertSingleton(final Value val, final Context context)
     {
         final T converted = itemConverter.convert(val, context);

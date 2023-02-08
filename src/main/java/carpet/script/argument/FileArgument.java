@@ -22,6 +22,7 @@ import net.minecraft.nbt.TagTypes;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nullable;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -90,7 +91,7 @@ public class FileArgument
         private final String id;
         private final String extension;
 
-        public static Map<String, Type> of = Arrays.stream(values()).collect(Collectors.toMap(t -> t.id, t -> t));
+        private static final Map<String, Type> of = Arrays.stream(values()).collect(Collectors.toMap(t -> t.id, t -> t));
 
         Type(final String id, final String extension)
         {
@@ -104,7 +105,7 @@ public class FileArgument
         READ, CREATE, DELETE
     }
 
-    public FileArgument(final String resource, final Type type, final String zipContainer, final boolean isFolder, final boolean isShared, final Reason reason, final ScriptHost host)
+    public FileArgument(@Nullable final String resource, final Type type, @Nullable final String zipContainer, final boolean isFolder, final boolean isShared, final Reason reason, final ScriptHost host)
     {
         this.resource = resource;
         this.type = type;
@@ -133,11 +134,11 @@ public class FileArgument
         final boolean shared = origtype.startsWith("shared_");
         final String typeString = shared ? origtype.substring(7) : origtype; //len(shared_)
         final Type type = Type.of.get(typeString);
-        final Pair<String, String> resource = recognizeResource(lv.get(0).getString(), isFolder, type);
         if (type == null)
         {
             throw new InternalExpressionException("Unsupported file type: " + origtype);
         }
+        final Pair<String, String> resource = recognizeResource(lv.get(0).getString(), isFolder, type);
         if (type == Type.FOLDER && !isFolder)
         {
             throw new InternalExpressionException("Folder types are no supported for this IO function");
@@ -201,7 +202,7 @@ public class FileArgument
         return host.resolveScriptFile(suffix);
     }
 
-    private Path toPath(final Module module)
+    private Path toPath(@Nullable final Module module)
     {
         if (!isShared && module == null)
         {

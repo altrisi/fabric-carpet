@@ -93,27 +93,27 @@ public class BlockIterators
             final int zprange = upperRange.getZ();
 
             //saving outer scope
-            final LazyValue _x = c.getVariable("_x");
-            final LazyValue _y = c.getVariable("_y");
-            final LazyValue _z = c.getVariable("_z");
-            final LazyValue __ = c.getVariable("_");
+            final LazyValue xVal = c.getVariable("_x");
+            final LazyValue yVal = c.getVariable("_y");
+            final LazyValue zVal = c.getVariable("_z");
+            final LazyValue defaultVal = c.getVariable("_");
             int sCount = 0;
             outer:
             for (int y = cy - yrange; y <= cy + yprange; y++)
             {
                 final int yFinal = y;
-                c.setVariable("_y", (c_, t_) -> new NumericValue(yFinal).bindTo("_y"));
+                c.setVariable("_y", (ct, tt) -> new NumericValue(yFinal).bindTo("_y"));
                 for (int x = cx - xrange; x <= cx + xprange; x++)
                 {
                     final int xFinal = x;
-                    c.setVariable("_x", (c_, t_) -> new NumericValue(xFinal).bindTo("_x"));
+                    c.setVariable("_x", (ct, tt) -> new NumericValue(xFinal).bindTo("_x"));
                     for (int z = cz - zrange; z <= cz + zprange; z++)
                     {
                         final int zFinal = z;
 
-                        c.setVariable("_z", (c_, t_) -> new NumericValue(zFinal).bindTo("_z"));
+                        c.setVariable("_z", (ct, tt) -> new NumericValue(zFinal).bindTo("_z"));
                         final Value blockValue = BlockValue.fromCoords(((CarpetContext) c), xFinal, yFinal, zFinal).bindTo("_");
-                        c.setVariable("_", (cc_, t_c) -> blockValue);
+                        c.setVariable("_", (ct, tt) -> blockValue);
                         Value result;
                         try
                         {
@@ -135,12 +135,12 @@ public class BlockIterators
                 }
             }
             //restoring outer scope
-            c.setVariable("_x", _x);
-            c.setVariable("_y", _y);
-            c.setVariable("_z", _z);
-            c.setVariable("_", __);
+            c.setVariable("_x", xVal);
+            c.setVariable("_y", yVal);
+            c.setVariable("_z", zVal);
+            c.setVariable("_", defaultVal);
             final int finalSCount = sCount;
-            return (c_, t_) -> new NumericValue(finalSCount);
+            return (ct, tt) -> new NumericValue(finalSCount);
         });
 
         // must be lazy
@@ -173,26 +173,26 @@ public class BlockIterators
             final LazyValue expr = llv.get(pos2Locator.offset);
 
             //saving outer scope
-            final LazyValue _x = c.getVariable("_x");
-            final LazyValue _y = c.getVariable("_y");
-            final LazyValue _z = c.getVariable("_z");
-            final LazyValue __ = c.getVariable("_");
+            final LazyValue xVal = c.getVariable("_x");
+            final LazyValue yVal = c.getVariable("_y");
+            final LazyValue zVal = c.getVariable("_z");
+            final LazyValue defaultVal = c.getVariable("_");
             int sCount = 0;
             outer:
             for (int y = miny; y <= maxy; y++)
             {
                 final int yFinal = y;
-                c.setVariable("_y", (c_, t_) -> new NumericValue(yFinal).bindTo("_y"));
+                c.setVariable("_y", (ct, tt) -> new NumericValue(yFinal).bindTo("_y"));
                 for (int x = minx; x <= maxx; x++)
                 {
                     final int xFinal = x;
-                    c.setVariable("_x", (c_, t_) -> new NumericValue(xFinal).bindTo("_x"));
+                    c.setVariable("_x", (ct, tt) -> new NumericValue(xFinal).bindTo("_x"));
                     for (int z = minz; z <= maxz; z++)
                     {
                         final int zFinal = z;
-                        c.setVariable("_z", (c_, t_) -> new NumericValue(zFinal).bindTo("_z"));
+                        c.setVariable("_z", (ct, tt) -> new NumericValue(zFinal).bindTo("_z"));
                         final Value blockValue = BlockValue.fromCoords(((CarpetContext) c), xFinal, yFinal, zFinal).bindTo("_");
-                        c.setVariable("_", (cc_, t_c) -> blockValue);
+                        c.setVariable("_", (ct, tt) -> blockValue);
                         Value result;
                         try
                         {
@@ -214,12 +214,12 @@ public class BlockIterators
                 }
             }
             //restoring outer scope
-            c.setVariable("_x", _x);
-            c.setVariable("_y", _y);
-            c.setVariable("_z", _z);
-            c.setVariable("_", __);
+            c.setVariable("_x", xVal);
+            c.setVariable("_y", yVal);
+            c.setVariable("_z", zVal);
+            c.setVariable("_", defaultVal);
             final int finalSCount = sCount;
-            return (c_, t_) -> new NumericValue(finalSCount);
+            return (ct, tt) -> new NumericValue(finalSCount);
         });
 
         expression.addContextFunction("neighbours", -1, (c, t, lv) ->
@@ -228,12 +228,12 @@ public class BlockIterators
             final ServerLevel world = ((CarpetContext) c).level();
 
             final List<Value> neighbours = new ArrayList<>();
-            neighbours.add(new BlockValue(null, world, center.above()));
-            neighbours.add(new BlockValue(null, world, center.below()));
-            neighbours.add(new BlockValue(null, world, center.north()));
-            neighbours.add(new BlockValue(null, world, center.south()));
-            neighbours.add(new BlockValue(null, world, center.east()));
-            neighbours.add(new BlockValue(null, world, center.west()));
+            neighbours.add(new BlockValue(world, center.above()));
+            neighbours.add(new BlockValue(world, center.below()));
+            neighbours.add(new BlockValue(world, center.north()));
+            neighbours.add(new BlockValue(world, center.south()));
+            neighbours.add(new BlockValue(world, center.east()));
+            neighbours.add(new BlockValue(world, center.west()));
             return ListValue.wrap(neighbours);
         });
 

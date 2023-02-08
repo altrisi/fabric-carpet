@@ -3,6 +3,8 @@ package carpet.script.value;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 
+import javax.annotation.Nullable;
+
 public class StringValue extends Value
 {
     public static Value EMPTY = StringValue.of("");
@@ -32,7 +34,7 @@ public class StringValue extends Value
         this.str = str;
     }
 
-    public static Value of(final String value)
+    public static Value of(@Nullable final String value)
     {
         return value == null ? Value.NULL : new StringValue(value);
     }

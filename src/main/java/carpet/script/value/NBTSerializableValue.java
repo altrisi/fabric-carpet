@@ -55,6 +55,8 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
+import javax.annotation.Nullable;
+
 public class NBTSerializableValue extends Value implements ContainerValueInterface
 {
     private String nbtString = null;
@@ -113,33 +115,41 @@ public class NBTSerializableValue extends Value implements ContainerValueInterfa
         return Value.NULL;
     }
 
-    public static String nameFromRegistryId(final ResourceLocation id)
+    public static Value nameFromRegistryId(@Nullable final ResourceLocation id)
     {
-        if (id == null) // should be Value.NULL
-        {
-            return "";
-        }
-        return id.getNamespace().equals("minecraft") ? id.getPath() : id.toString();
+        return StringValue.of(nameFromResource(id));
     }
 
-    public static NBTSerializableValue parseString(final String nbtString, final boolean fail)
+    @Nullable
+    public static String nameFromResource(@Nullable final ResourceLocation id)
     {
-        final Tag tag;
+        return id == null ? null : id.getNamespace().equals("minecraft") ? id.getPath() : id.toString();
+    }
+
+    @Nullable
+    public static NBTSerializableValue parseString(final String nbtString)
+    {
         try
         {
-            tag = (new TagParser(new StringReader(nbtString))).readValue();
+            final Tag tag = (new TagParser(new StringReader(nbtString))).readValue();
+            final NBTSerializableValue value = new NBTSerializableValue(tag);
+            value.nbtString = null;
+            return value;
         }
         catch (final CommandSyntaxException e)
         {
-            if (fail)
-            {
-                throw new InternalExpressionException("Incorrect NBT tag: " + nbtString);
-            }
             return null;
         }
-        final NBTSerializableValue value = new NBTSerializableValue(tag);
-        value.nbtString = null;
-        return value;
+    }
+
+    public static NBTSerializableValue parseStringOrFail(final String nbtString)
+    {
+        final NBTSerializableValue result = parseString(nbtString);
+        if (result == null)
+        {
+            throw new InternalExpressionException("Incorrect NBT tag: " + nbtString);
+        }
+        return result;
     }
 
 
@@ -336,7 +346,7 @@ public class NBTSerializableValue extends Value implements ContainerValueInterfa
         return parseItem(itemString, null, regs);
     }
 
-    public static ItemInput parseItem(final String itemString, final CompoundTag customTag, final RegistryAccess regs)
+    public static ItemInput parseItem(final String itemString, @Nullable final CompoundTag customTag, final RegistryAccess regs)
     {
         try
         {
@@ -432,7 +442,7 @@ public class NBTSerializableValue extends Value implements ContainerValueInterfa
         {
             return Value.NULL;
         }
-        return NBTSerializableValue.parseString(v.getString(), true);
+        return NBTSerializableValue.parseStringOrFail(v.getString());
     }
 
     public Tag getTag()

@@ -133,7 +133,7 @@ import static carpet.script.utils.WorldTools.canHasChunk;
 
 public class WorldAccess
 {
-    private static final Map<String, Direction> DIRECTION_MAP = Arrays.stream(Direction.values()).collect(Collectors.toMap(Direction::getName, (direction) -> direction));
+    private static final Map<String, Direction> DIRECTION_MAP = Arrays.stream(Direction.values()).collect(Collectors.toMap(Direction::getName, Function.identity()));
 
     static
     {
@@ -158,7 +158,7 @@ public class WorldAccess
     )
     {
         final CarpetContext cc = (CarpetContext) c;
-        if (params.size() == 0)
+        if (params.isEmpty())
         {
             throw new InternalExpressionException("'" + name + "' requires at least one parameter");
         }
@@ -178,7 +178,7 @@ public class WorldAccess
     )
     {
         final CarpetContext cc = (CarpetContext) c;
-        if (params.size() == 0)
+        if (params.isEmpty())
         {
             throw new InternalExpressionException("'" + name + "' requires at least one parameter");
         }
@@ -198,7 +198,7 @@ public class WorldAccess
     )
     {
         final CarpetContext cc = (CarpetContext) c;
-        if (params.size() == 0)
+        if (params.isEmpty())
         {
             throw new InternalExpressionException("'" + name + "' requires at least one parameter");
         }
@@ -246,7 +246,7 @@ public class WorldAccess
         return (float) num;
     }
 
-    private static void BooYah(final ServerLevel level)
+    private static void theBooYah(final ServerLevel level)
     {
         synchronized (level)
         {
@@ -259,7 +259,7 @@ public class WorldAccess
         expression.addContextFunction("block", -1, (c, t, lv) ->
         {
             final CarpetContext cc = (CarpetContext) c;
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 throw new InternalExpressionException("Block requires at least one parameter");
             }
@@ -272,7 +272,7 @@ public class WorldAccess
 
         expression.addContextFunction("block_data", -1, (c, t, lv) ->
         {
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 throw new InternalExpressionException("Block requires at least one parameter");
             }
@@ -283,7 +283,7 @@ public class WorldAccess
         expression.addContextFunction("poi", -1, (c, t, lv) ->
         {
             final CarpetContext cc = (CarpetContext) c;
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 throw new InternalExpressionException("'poi' requires at least one parameter");
             }
@@ -314,7 +314,7 @@ public class WorldAccess
                         new NumericValue(poiType.maxTickets() - ((PoiRecord_scarpetMixin) poi).getFreeTickets())
                 );
             }
-            final int radius = NumericValue.asNumber(lv.get(locator.offset + 0)).getInt();
+            final int radius = NumericValue.asNumber(lv.get(locator.offset)).getInt();
             if (radius < 0)
             {
                 return ListValue.of();
@@ -329,7 +329,7 @@ public class WorldAccess
                 {
                     final PoiType type = poiReg.getOptional(InputValidator.identifierOf(poiType))
                             .orElseThrow(() -> new ThrowStatement(poiType, Throwables.UNKNOWN_POI));
-                    condition = (tt) -> tt.value() == type;
+                    condition = tt -> tt.value() == type;
                 }
                 if (locator.offset + 2 < lv.size())
                 {
@@ -370,7 +370,7 @@ public class WorldAccess
         expression.addContextFunction("set_poi", -1, (c, t, lv) ->
         {
             final CarpetContext cc = (CarpetContext) c;
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 throw new InternalExpressionException("'set_poi' requires at least one parameter");
             }
@@ -380,7 +380,7 @@ public class WorldAccess
             {
                 throw new InternalExpressionException("'set_poi' requires the new poi type or null, after position argument");
             }
-            final Value poi = lv.get(locator.offset + 0);
+            final Value poi = lv.get(locator.offset);
             final PoiManager store = cc.level().getPoiManager();
             if (poi.isNull())
             {   // clear poi information
@@ -417,7 +417,7 @@ public class WorldAccess
             if (occupancy > 0)
             {
                 final int finalO = occupancy;
-                store.getInSquare((tt) -> tt.value() == type, pos, 1, PoiManager.Occupancy.ANY
+                store.getInSquare(tt -> tt.value() == type, pos, 1, PoiManager.Occupancy.ANY
                 ).filter(p -> p.getPos().equals(pos)).findFirst().ifPresent(p -> {
                     for (int i = 0; i < finalO; i++)
                     {
@@ -432,7 +432,7 @@ public class WorldAccess
         expression.addContextFunction("weather", -1, (c, t, lv) -> {
             final ServerLevel world = ((CarpetContext) c).level();
 
-            if (lv.size() == 0)//cos it can thunder when raining or when clear.
+            if (lv.isEmpty())//cos it can thunder when raining or when clear.
             {
                 return new StringValue(world.isThundering() ? "thunder" : (world.isRaining() ? "rain" : "clear"));
             }
@@ -638,11 +638,11 @@ public class WorldAccess
         expression.addContextFunction("chunk_tickets", -1, (c, t, lv) ->
         {
             final ServerLevel world = ((CarpetContext) c).level();
-            DistanceManager foo = Vanilla.ServerChunkCache_getCMTicketManager(world.getChunkSource());
+            final DistanceManager foo = Vanilla.ServerChunkCache_getCMTicketManager(world.getChunkSource());
             final Long2ObjectOpenHashMap<SortedArraySet<Ticket<?>>> levelTickets = Vanilla.ChunkTicketManager_getTicketsByPosition(foo);
 
             final List<Value> res = new ArrayList<>();
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 for (final long key : levelTickets.keySet())
                 {
@@ -871,17 +871,11 @@ public class WorldAccess
                     throw new InternalExpressionException("tag is not necessary with 'destroy' with no item");
                 }
                 final Value tagValue = lv.get(locator.offset + 1);
-                if (tagValue.isNull())
+                if (!tagValue.isNull())
                 {
-                    tag = null;
-                }
-                else if (tagValue instanceof final NBTSerializableValue nbtsv)
-                {
-                    tag = nbtsv.getCompoundTag();
-                }
-                else
-                {
-                    tag = NBTSerializableValue.parseString(tagValue.getString(), true).getCompoundTag();
+                    tag = tagValue instanceof final NBTSerializableValue nbtsv
+                            ? nbtsv.getCompoundTag()
+                            : NBTSerializableValue.parseStringOrFail(tagValue.getString()).getCompoundTag();
                 }
             }
 
@@ -938,7 +932,7 @@ public class WorldAccess
                     }
                     if (DUMMY_ENTITY == null)
                     {
-                        DUMMY_ENTITY = new FallingBlockEntity(EntityType.FALLING_BLOCK, null);
+                        DUMMY_ENTITY = new FallingBlockEntity(EntityType.FALLING_BLOCK, cc.server().overworld());
                     }
                     Block.dropResources(state, world, where, be, DUMMY_ENTITY, tool);
                 }
@@ -1028,39 +1022,39 @@ public class WorldAccess
                         if (lv.size() > location.offset + 3)
                         {
                             Value enVal = lv.get(location.offset + 3);
-                            if (enVal.isNull())
+                            if (!enVal.isNull())
                             {
-                            } // is null already
-                            else if (enVal instanceof final EntityValue ev)
-                            {
-                                source = ev.getEntity();
-                            }
-                            else
-                            {
-                                throw new InternalExpressionException("Fourth parameter of the explosion has to be an entity, not " + enVal.getTypeString());
+                                if (enVal instanceof final EntityValue ev)
+                                {
+                                    source = ev.getEntity();
+                                }
+                                else
+                                {
+                                    throw new InternalExpressionException("Fourth parameter of the explosion has to be an entity, not " + enVal.getTypeString());
+                                }
                             }
                             if (lv.size() > location.offset + 4)
                             {
                                 enVal = lv.get(location.offset + 4);
-                                if (enVal.isNull())
+                                if (!enVal.isNull())
                                 {
-                                } // is null already
-                                else if (enVal instanceof final EntityValue ev)
-                                {
-                                    final Entity attackingEntity = ev.getEntity();
-                                    if (attackingEntity instanceof final LivingEntity le)
+                                    if (enVal instanceof final EntityValue ev)
                                     {
-                                        attacker = le;
+                                        final Entity attackingEntity = ev.getEntity();
+                                        if (attackingEntity instanceof final LivingEntity le)
+                                        {
+                                            attacker = le;
+                                        }
+                                        else
+                                        {
+                                            throw new InternalExpressionException("Attacking entity needs to be a living thing, " +
+                                                    ValueConversions.of(cc.registry(Registries.ENTITY_TYPE).getKey(attackingEntity.getType())).getString() + " ain't it.");
+                                        }
                                     }
                                     else
                                     {
-                                        throw new InternalExpressionException("Attacking entity needs to be a living thing, " +
-                                                ValueConversions.of(cc.registry(Registries.ENTITY_TYPE).getKey(attackingEntity.getType())).getString() + " ain't it.");
+                                        throw new InternalExpressionException("Fifth parameter of the explosion has to be a living entity, not " + enVal.getTypeString());
                                     }
-                                }
-                                else
-                                {
-                                    throw new InternalExpressionException("Fifth parameter of the explosion has to be a living entity, not " + enVal.getTypeString());
                                 }
                             }
                         }
@@ -1228,7 +1222,7 @@ public class WorldAccess
         {
             final CarpetContext cc = (CarpetContext) c;
             final Registry<Block> blocks = cc.registry(Registries.BLOCK);
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 return ListValue.wrap(blocks.keySet().stream().map(ValueConversions::of));
             }
@@ -1241,7 +1235,7 @@ public class WorldAccess
         {
             final CarpetContext cc = (CarpetContext) c;
             final Registry<Block> blocks = cc.registry(Registries.BLOCK);
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 return ListValue.wrap(blocks.getTagNames().map(ValueConversions::of));
             }
@@ -1259,7 +1253,7 @@ public class WorldAccess
         expression.addContextFunction("biome", -1, (c, t, lv) -> {
             final CarpetContext cc = (CarpetContext) c;
             final ServerLevel world = cc.level();
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 return ListValue.wrap(world.registryAccess().registryOrThrow(Registries.BIOME).keySet().stream().map(ValueConversions::of));
             }
@@ -1299,7 +1293,7 @@ public class WorldAccess
                 );
                 biome = mnbs.getNoiseBiome(point).value();
                 final ResourceLocation biomeId = cc.registry(Registries.BIOME).getKey(biome);
-                return new StringValue(NBTSerializableValue.nameFromRegistryId(biomeId));
+                return NBTSerializableValue.nameFromRegistryId(biomeId);
             }
 
             final BlockArgument locator = BlockArgument.findIn(cc, lv, 0, false, false, true);
@@ -1320,7 +1314,7 @@ public class WorldAccess
             if (locator.offset == lv.size())
             {
                 final ResourceLocation biomeId = cc.registry(Registries.BIOME).getKey(biome);
-                return new StringValue(NBTSerializableValue.nameFromRegistryId(biomeId));
+                return NBTSerializableValue.nameFromRegistryId(biomeId);
             }
             final String biomeFeature = lv.get(locator.offset).getString();
             final BiFunction<ServerLevel, Biome, Value> featureProvider = BiomeInfo.biomeFeatures.get(biomeFeature);
@@ -1339,7 +1333,7 @@ public class WorldAccess
             {
                 throw new InternalExpressionException("'set_biome' needs a biome name as an argument");
             }
-            final String biomeName = lv.get(locator.offset + 0).getString();
+            final String biomeName = lv.get(locator.offset).getString();
             // from locatebiome command code
             final Holder<Biome> biome = cc.registry(Registries.BIOME).getHolder(ResourceKey.create(Registries.BIOME, InputValidator.identifierOf(biomeName)))
                     .orElseThrow(() -> new ThrowStatement(biomeName, Throwables.UNKNOWN_BIOME));
@@ -1394,7 +1388,7 @@ public class WorldAccess
             {
                 return ListValue.wrap(references.entrySet().stream().
                         filter(e -> e.getValue() != null && !e.getValue().isEmpty()).
-                        map(e -> new StringValue(NBTSerializableValue.nameFromRegistryId(reg.getKey(e.getKey()))))
+                        map(e -> NBTSerializableValue.nameFromRegistryId(reg.getKey(e.getKey())))
                 );
             }
             final String simpleStructureName = lv.get(locator.offset).getString().toLowerCase(Locale.ROOT);
@@ -1409,9 +1403,9 @@ public class WorldAccess
                 return ListValue.of();
             }
             return ListValue.wrap(structureReferences.longStream().mapToObj(l -> ListValue.of(
-                    new NumericValue(16 * ChunkPos.getX(l)),
+                    new NumericValue(16L * ChunkPos.getX(l)),
                     Value.ZERO,
-                    new NumericValue(16 * ChunkPos.getZ(l)))));
+                    new NumericValue(16L * ChunkPos.getZ(l)))));
         });
 
         expression.addContextFunction("structure_eligibility", -1, (c, t, lv) ->
@@ -1422,7 +1416,7 @@ public class WorldAccess
             final ServerLevel world = cc.level();
 
             // well, because
-            BooYah(world);
+            theBooYah(world);
 
             final BlockPos pos = locator.block.getPos();
             final List<Structure> structure = new ArrayList<>();
@@ -1431,7 +1425,7 @@ public class WorldAccess
             final Registry<Structure> reg = cc.registry(Registries.STRUCTURE);
             if (lv.size() > locator.offset)
             {
-                final Value requested = lv.get(locator.offset + 0);
+                final Value requested = lv.get(locator.offset);
                 if (!requested.isNull())
                 {
                     final String reqString = requested.getString();
@@ -1490,7 +1484,7 @@ public class WorldAccess
                     continue;
                 }
 
-                final Value key = new StringValue(NBTSerializableValue.nameFromRegistryId(reg.getKey(str)));
+                final Value key = NBTSerializableValue.nameFromRegistryId(reg.getKey(str));
                 ret.put(key, (!needSize) ? Value.NULL : ValueConversions.of(start, cc.registryAccess()));
             }
             return MapValue.wrap(ret);
@@ -1516,7 +1510,7 @@ public class WorldAccess
                     }
                     final BoundingBox box = start.getBoundingBox();
                     structureList.put(
-                            new StringValue(NBTSerializableValue.nameFromRegistryId(reg.getKey(entry.getKey()))),
+                            NBTSerializableValue.nameFromRegistryId(reg.getKey(entry.getKey())),
                             ValueConversions.of(box)
                     );
                 }
@@ -1552,23 +1546,18 @@ public class WorldAccess
                 final Map<Structure, StructureStart> structures = world.getChunk(pos).getAllStarts();
                 if (lv.size() == locator.offset + 1)
                 {
-                    final Boolean res = FeatureGenerator.plopGrid(configuredStructure, ((CarpetContext) c).level(), locator.block.getPos());
-                    if (res == null)
-                    {
-                        return;
-                    }
+                    final boolean res = FeatureGenerator.plopGrid(configuredStructure, ((CarpetContext) c).level(), locator.block.getPos());
                     result[0] = res ? Value.TRUE : Value.FALSE;
                     return;
                 }
                 final Value newValue = lv.get(locator.offset + 1);
                 if (newValue.isNull()) // remove structure
                 {
-                    final Structure structure = configuredStructure;
-                    if (!structures.containsKey(structure))
+                    if (!structures.containsKey(configuredStructure))
                     {
                         return;
                     }
-                    final StructureStart start = structures.get(structure);
+                    final StructureStart start = structures.get(configuredStructure);
                     final ChunkPos structureChunkPos = start.getChunkPos();
                     final BoundingBox box = start.getBoundingBox();
                     for (int chx = box.minX() / 16; chx <= box.maxX() / 16; chx++)  // minx maxx
@@ -1579,13 +1568,13 @@ public class WorldAccess
                             // getting a chunk will convert it to full, allowing to modify references
                             final Map<Structure, LongSet> references =
                                     world.getChunk(chpos.getWorldPosition()).getAllReferences();
-                            if (references.containsKey(structure) && references.get(structure) != null)
+                            if (references.containsKey(configuredStructure) && references.get(configuredStructure) != null)
                             {
-                                references.get(structure).remove(structureChunkPos.toLong());
+                                references.get(configuredStructure).remove(structureChunkPos.toLong());
                             }
                         }
                     }
-                    structures.remove(structure);
+                    structures.remove(configuredStructure);
                     result[0] = Value.TRUE;
                 }
             });
@@ -1667,13 +1656,13 @@ public class WorldAccess
             final CarpetContext cc = (CarpetContext) c;
             final BlockArgument locator = BlockArgument.findIn(cc, lv, 0);
             final BlockPos pos = locator.block.getPos();
-            double required_charge = 1;
+            double requiredCharge = 1;
             if (lv.size() > locator.offset)
             {
-                required_charge = NumericValue.asNumber(lv.get(locator.offset)).getDouble();
+                requiredCharge = NumericValue.asNumber(lv.get(locator.offset)).getDouble();
             }
             final NaturalSpawner.SpawnState charger = cc.level().getChunkSource().getLastSpawnState();
-            return charger == null ? Value.NULL : new NumericValue(Vanilla.SpawnState_getPotentialCalculator(charger).getPotentialEnergyChange(pos, required_charge)
+            return charger == null ? Value.NULL : new NumericValue(Vanilla.SpawnState_getPotentialCalculator(charger).getPotentialEnergyChange(pos, requiredCharge)
             );
         });
 
@@ -1717,7 +1706,7 @@ public class WorldAccess
         expression.addContextFunction("sample_noise", -1, (c, t, lv) ->
         {
             final CarpetContext cc = (CarpetContext) c;
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 return ListValue.wrap(cc.registry(Registries.DENSITY_FUNCTION).keySet().stream().map(ValueConversions::of));
             }
@@ -1761,7 +1750,7 @@ public class WorldAccess
     }
 
     // to be used with future seedable noise
-    public static Function<Pair<ServerLevel, String>, DensityFunction> stupidWorldgenNoiseCacheGetter = Util.memoize(pair -> {
+    public static final Function<Pair<ServerLevel, String>, DensityFunction> stupidWorldgenNoiseCacheGetter = Util.memoize(pair -> {
         ServerLevel level = pair.getKey();
         String densityFunctionQuery = pair.getValue();
         ChunkGenerator generator = level.getChunkSource().getGenerator();
@@ -1788,14 +1777,12 @@ public class WorldAccess
                         case "vein_ridged" -> router.veinRidged();
                         case "vein_gap" -> router.veinGap();
                         default -> {
-                            ResourceLocation densityFunctionKey = InputValidator.identifierOf(densityFunctionQuery);
-
-                            if (densityFunctionRegistry.containsKey(densityFunctionKey))
+                            final DensityFunction result = densityFunctionRegistry.get(InputValidator.identifierOf(densityFunctionQuery));
+                            if (result == null)
                             {
-                                yield densityFunctionRegistry.get(densityFunctionKey);
+                                throw new InternalExpressionException("Density function '" + densityFunctionQuery + "' is not defined in the registies.");
                             }
-
-                            throw new InternalExpressionException("Density function '" + densityFunctionQuery + "' is not defined in the registies.");
+                            yield result;
                         }
                     };
 

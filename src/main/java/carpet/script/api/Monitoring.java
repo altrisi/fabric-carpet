@@ -31,7 +31,7 @@ public class Monitoring
     {
         expression.addContextFunction("system_info", -1, (c, t, lv) ->
         {
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 return SystemInfo.getAll();
             }
@@ -59,7 +59,7 @@ public class Monitoring
             }
             final Object2IntMap<MobCategory> mobcounts = info.getMobCategoryCounts();
             final int chunks = info.getSpawnableChunkCount();
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 final Map<Value, Value> retDict = new HashMap<>();
                 for (final MobCategory category : mobcounts.keySet())
@@ -82,7 +82,7 @@ public class Monitoring
             }
             return ListValue.of(
                     new NumericValue(mobcounts.getInt(cat)),
-                    new NumericValue((int) (cat.getMaxInstancesPerChunk() * chunks / Vanilla.NaturalSpawner_MAGIC_NUMBER()))
+                    new NumericValue((long) cat.getMaxInstancesPerChunk() * chunks / Vanilla.NaturalSpawner_MAGIC_NUMBER())
             );
         });
     }

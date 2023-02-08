@@ -57,6 +57,8 @@ import net.minecraft.world.inventory.StonecutterMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 
+import javax.annotation.Nullable;
+
 import static net.minecraft.world.inventory.MenuType.*;
 
 public class ScreenValue extends Value
@@ -109,7 +111,7 @@ public class ScreenValue extends Value
         AbstractContainerMenu create(int syncId, Inventory playerInventory);
     }
 
-    public ScreenValue(final ServerPlayer player, final String type, final Component name, final FunctionValue callback, final Context c)
+    public ScreenValue(final ServerPlayer player, final String type, final Component name, @Nullable final FunctionValue callback, final Context c)
     {
         this.name = name;
         this.typestring = type.toLowerCase();

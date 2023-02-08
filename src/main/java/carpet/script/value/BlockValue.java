@@ -31,6 +31,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -38,14 +39,20 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
+
 import static carpet.script.value.NBTSerializableValue.nameFromRegistryId;
+import static carpet.script.value.NBTSerializableValue.nameFromResource;
 
 public class BlockValue extends Value
 {
     private BlockState blockState;
     private final BlockPos pos;
-    private final Level world;
+    private final ServerLevel world;
     private CompoundTag data;
+
+    // we only care for null values a few times, most of the time we would assume its all present
+    public static final BlockValue NONE = new BlockValue(Blocks.AIR.defaultBlockState(), null, BlockPos.ZERO, null);
 
     public static BlockValue fromCoords(final CarpetContext c, final int x, final int y, final int z)
     {
@@ -55,7 +62,7 @@ public class BlockValue extends Value
 
     private static final Map<String, BlockValue> bvCache = new HashMap<>();
 
-    public static BlockValue fromString(final String str, final Level level)
+    public static BlockValue fromString(final String str, final ServerLevel level)
     {
         try
         {
@@ -140,7 +147,7 @@ public class BlockValue extends Value
     }
 
 
-    public BlockValue(final BlockState state, final Level world, final BlockPos position)
+    public BlockValue(final BlockState state, final ServerLevel world, final BlockPos position)
     {
         this.world = world;
         blockState = state;
@@ -148,7 +155,39 @@ public class BlockValue extends Value
         data = null;
     }
 
-    public BlockValue(final BlockState state, final Level world, final BlockPos position, final CompoundTag nbt)
+    public BlockValue(final BlockState state)
+    {
+        this.world = null;
+        blockState = state;
+        pos = null;
+        data = null;
+    }
+
+    public BlockValue(final ServerLevel world, final BlockPos position)
+    {
+        this.world = world;
+        blockState = null;
+        pos = position;
+        data = null;
+    }
+
+    public BlockValue(final BlockState state, final CompoundTag nbt)
+    {
+        this.world = null;
+        blockState = state;
+        pos = null;
+        data = nbt;
+    }
+
+    public BlockValue(final BlockState state, final ServerLevel world, final CompoundTag nbt)
+    {
+        this.world = world;
+        blockState = state;
+        pos = null;
+        data = nbt;
+    }
+
+    private BlockValue(@Nullable final BlockState state, @Nullable final ServerLevel world, @Nullable final BlockPos position, @Nullable final CompoundTag nbt)
     {
         this.world = world;
         blockState = state;
@@ -161,7 +200,7 @@ public class BlockValue extends Value
     public String getString()
     {
         final Registry<Block> blockRegistry = world.registryAccess().registryOrThrow(Registries.BLOCK);
-        return nameFromRegistryId(blockRegistry.getKey(getBlockState().getBlock()));
+        return nameFromResource(blockRegistry.getKey(getBlockState().getBlock()));
     }
 
     @Override

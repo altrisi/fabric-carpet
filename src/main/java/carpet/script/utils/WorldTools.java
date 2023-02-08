@@ -34,6 +34,7 @@ import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.DerivedLevelData;
 import net.minecraft.world.level.storage.ServerLevelData;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -44,7 +45,7 @@ import java.util.Set;
 public class WorldTools
 {
 
-    public static boolean canHasChunk(final ServerLevel world, final ChunkPos chpos, final Map<String, RegionFile> regionCache, final boolean deepcheck)
+    public static boolean canHasChunk(final ServerLevel world, final ChunkPos chpos, @Nullable final Map<String, RegionFile> regionCache, final boolean deepcheck)
     {
         if (world.getChunk(chpos.x, chpos.z, ChunkStatus.STRUCTURE_STARTS, false) != null)
         {

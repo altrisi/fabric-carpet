@@ -70,6 +70,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
+
 public class CarpetEventServer
 {
     public final List<ScheduledCall> scheduledCalls = new LinkedList<>();
@@ -86,12 +88,13 @@ public class CarpetEventServer
     public static class Callback
     {
         public final String host;
+        @Nullable
         public final String optionalTarget;
         public final FunctionValue function;
         public final List<Value> parametrizedArgs;
         public final CarpetScriptServer scriptServer;
 
-        public Callback(final String host, final String target, final FunctionValue function, final List<Value> parametrizedArgs, final CarpetScriptServer scriptServer)
+        public Callback(final String host, @Nullable final String target, final FunctionValue function, final List<Value> parametrizedArgs, final CarpetScriptServer scriptServer)
         {
             this.host = host;
             this.function = function;
@@ -126,13 +129,13 @@ public class CarpetEventServer
          * Used also in entity events
          *
          * @param sender            - sender of the signal
-         * @param optionalRecipient - optional target player argument
+         * @param recipient - optional target player argument
          * @param runtimeArgs       = options
          */
-        public CallbackResult signal(final CommandSourceStack sender, final ServerPlayer optionalRecipient, final List<Value> runtimeArgs)
+        public CallbackResult signal(final CommandSourceStack sender, @Nullable final ServerPlayer recipient, final List<Value> runtimeArgs)
         {
             // recipent of the call doesn't match the handlingHost
-            return optionalRecipient != null && !optionalRecipient.getScoreboardName().equals(optionalTarget) ? CallbackResult.FAIL : execute(sender, runtimeArgs);
+            return recipient != null && !recipient.getScoreboardName().equals(optionalTarget) ? CallbackResult.FAIL : execute(sender, runtimeArgs);
         }
 
 
@@ -300,7 +303,7 @@ public class CarpetEventServer
             return isCancelled != null && isCancelled;
         }
 
-        public int signal(final CommandSourceStack sender, final ServerPlayer optinoalReceipient, final List<Value> callArg)
+        public int signal(final CommandSourceStack sender, @Nullable final ServerPlayer recipient, final List<Value> callArg)
         {
             if (callList.isEmpty())
             {
@@ -313,7 +316,7 @@ public class CarpetEventServer
                 for (int i = 0; i < callList.size(); i++)
                 {
                     // skipping tracking of fails, its explicit call
-                    if (callList.get(i).signal(sender, optinoalReceipient, callArg) == CallbackResult.SUCCESS)
+                    if (callList.get(i).signal(sender, recipient, callArg) == CallbackResult.SUCCESS)
                     {
                         successes++;
                     }
@@ -829,7 +832,7 @@ public class CarpetEventServer
                 return handler.call(() ->
                         Arrays.asList(
                                 new EntityValue(player),
-                                StringValue.of(NBTSerializableValue.nameFromRegistryId(recipe)),
+                                NBTSerializableValue.nameFromRegistryId(recipe),
                                 BooleanValue.of(fullStack)
                         ), player::createCommandSourceStack);
             }
@@ -932,8 +935,8 @@ public class CarpetEventServer
                 // eligibility already checked in mixin
                 final Value fromValue = ListValue.fromTriple(from.x, from.y, from.z);
                 final Value toValue = (to == null) ? Value.NULL : ListValue.fromTriple(to.x, to.y, to.z);
-                final Value fromDimStr = new StringValue(NBTSerializableValue.nameFromRegistryId(fromDim.location()));
-                final Value toDimStr = new StringValue(NBTSerializableValue.nameFromRegistryId(dimTo.location()));
+                final Value fromDimStr = NBTSerializableValue.nameFromRegistryId(fromDim.location());
+                final Value toDimStr = NBTSerializableValue.nameFromRegistryId(dimTo.location());
 
                 handler.call(() -> Arrays.asList(new EntityValue(player), fromValue, fromDimStr, toValue, toDimStr), player::createCommandSourceStack);
             }
@@ -1000,8 +1003,8 @@ public class CarpetEventServer
                 final Registry<StatType<?>> registry = player.getLevel().registryAccess().registryOrThrow(Registries.STAT_TYPE);
                 handler.call(() -> Arrays.asList(
                         new EntityValue(player),
-                        StringValue.of(NBTSerializableValue.nameFromRegistryId(registry.getKey(stat.getType()))),
-                        StringValue.of(NBTSerializableValue.nameFromRegistryId(id)),
+                        NBTSerializableValue.nameFromRegistryId(registry.getKey(stat.getType())),
+                        NBTSerializableValue.nameFromRegistryId(id),
                         new NumericValue(amount)
                 ), player::createCommandSourceStack);
             }
@@ -1484,10 +1487,10 @@ public class CarpetEventServer
         return ev.handler.addEventCallInternal(host, function, args == null ? NOARGS : args);
     }
 
-    public int signalEvent(final String event, final CarpetContext cc, final ServerPlayer optionalTarget, final List<Value> callArgs)
+    public int signalEvent(final String event, final CarpetContext cc, @Nullable final ServerPlayer target, final List<Value> callArgs)
     {
         final Event ev = Event.getEvent(event, ((CarpetScriptHost) cc.host).scriptServer());
-        return ev == null ? -1 : ev.handler.signal(cc.source(), optionalTarget, callArgs);
+        return ev == null ? -1 : ev.handler.signal(cc.source(), target, callArgs);
     }
 
     private void onEventAddedToHost(final Event event, final ScriptHost host)

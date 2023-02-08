@@ -59,7 +59,7 @@ public class Entities
     {
         expression.addContextFunction("player", -1, (c, t, lv) ->
         {
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 final CarpetContext cc = (CarpetContext) c;
                 if (cc.host.user != null)
@@ -88,7 +88,7 @@ public class Entities
                             yield ListValue.wrap(ret);
                         }
                         case "*" -> getPlayersFromWorldMatching(c, p -> true);
-                        case "survival" -> getPlayersFromWorldMatching(c, p -> p.gameMode.isSurvival()); // todo assert correct
+                        case "survival" -> getPlayersFromWorldMatching(c, p -> p.gameMode.isSurvival()); // includes adventure
                         case "creative" -> getPlayersFromWorldMatching(c, ServerPlayer::isCreative);
                         case "spectating" -> getPlayersFromWorldMatching(c, ServerPlayer::isSpectator);
                         case "!spectating" -> getPlayersFromWorldMatching(c, p -> !p.isSpectator());
@@ -134,7 +134,7 @@ public class Entities
                 final Value nbt = lv.get(position.offset);
                 final NBTSerializableValue v = (nbt instanceof final NBTSerializableValue nbtsv)
                         ? nbtsv
-                        : NBTSerializableValue.parseString(nbt.getString(), true);
+                        : NBTSerializableValue.parseStringOrFail(nbt.getString());
                 hasTag = true;
                 tag = v.getCompoundTag();
             }
@@ -144,7 +144,7 @@ public class Entities
             final ServerLevel serverWorld = cc.level();
             final Entity entity = EntityType.loadEntityRecursive(tag, serverWorld, e -> {
                 e.moveTo(vec3d.x, vec3d.y, vec3d.z, e.getYRot(), e.getXRot());
-                return !serverWorld.addWithUUID(e) ? null : e;
+                return e;
             });
             if (entity == null)
             {
@@ -153,6 +153,11 @@ public class Entities
             if (!hasTag && entity instanceof final Mob mob)
             {
                 mob.finalizeSpawn(serverWorld, serverWorld.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.COMMAND, null, null);
+            }
+            if (!serverWorld.tryAddFreshEntityWithPassengers(entity))
+            {
+                entity.discard();
+                return Value.NULL;
             }
             return new EntityValue(entity);
         });

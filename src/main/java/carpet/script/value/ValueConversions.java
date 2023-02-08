@@ -59,6 +59,8 @@ import java.util.stream.StreamSupport;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
+import javax.annotation.Nullable;
+
 public class ValueConversions
 {
     public static Value of(final BlockPos pos)
@@ -195,7 +197,7 @@ public class ValueConversions
         return of(tagKey.location());
     }
 
-    public static Value of(final ResourceLocation id)
+    public static Value of(@Nullable final ResourceLocation id)
     {
         if (id == null) // should be Value.NULL
         {
@@ -259,7 +261,7 @@ public class ValueConversions
         }
         if (v instanceof final BlockPos pos)
         {
-            return new BlockValue(null, e.getCommandSenderWorld(), pos);
+            return new BlockValue(null, (ServerLevel) e.getCommandSenderWorld(), pos);
         }
         if (v instanceof final Number number)
         {
@@ -286,12 +288,12 @@ public class ValueConversions
         }
         if (v instanceof final PositionTracker tracker)
         {
-            return new BlockValue(null, e.getCommandSenderWorld(), tracker.currentBlockPosition());
+            return new BlockValue(null, (ServerLevel) e.getCommandSenderWorld(), tracker.currentBlockPosition());
         }
         if (v instanceof final WalkTarget target)
         {
             return ListValue.of(
-                    new BlockValue(null, e.getCommandSenderWorld(), target.getTarget().currentBlockPosition()),
+                    new BlockValue(null, (ServerLevel) e.getCommandSenderWorld(), target.getTarget().currentBlockPosition()),
                     new NumericValue(target.getSpeedModifier()),
                     new NumericValue(target.getCloseEnoughDist())
             );
@@ -368,7 +370,7 @@ public class ValueConversions
             if (box.maxX() >= box.minX() && box.maxY() >= box.minY() && box.maxZ() >= box.minZ())
             {
                 pieces.add(ListValue.of(
-                        new StringValue(NBTSerializableValue.nameFromRegistryId(regs.registryOrThrow(Registries.STRUCTURE_PIECE).getKey(piece.getType()))),
+                        NBTSerializableValue.nameFromRegistryId(regs.registryOrThrow(Registries.STRUCTURE_PIECE).getKey(piece.getType())),
                         (piece.getOrientation() == null) ? Value.NULL : new StringValue(piece.getOrientation().getName()),
                         ListValue.fromTriple(box.minX(), box.minY(), box.minZ()),
                         ListValue.fromTriple(box.maxX(), box.maxY(), box.maxZ())

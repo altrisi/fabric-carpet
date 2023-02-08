@@ -83,6 +83,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 
+import javax.annotation.Nullable;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.URI;
@@ -131,7 +132,7 @@ public class Auxiliary
     {
         expression.addContextFunction("sound", -1, (c, t, lv) -> {
             final CarpetContext cc = (CarpetContext) c;
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 return ListValue.wrap(cc.registry(Registries.SOUND_EVENT).keySet().stream().map(ValueConversions::of));
             }
@@ -146,9 +147,9 @@ public class Auxiliary
             float volume = 1.0F;
             float pitch = 1.0F;
             SoundSource mixer = SoundSource.MASTER;
-            if (lv.size() > 0 + locator.offset)
+            if (lv.size() > locator.offset)
             {
-                volume = (float) NumericValue.asNumber(lv.get(0 + locator.offset)).getDouble();
+                volume = (float) NumericValue.asNumber(lv.get(locator.offset)).getDouble();
                 if (lv.size() > 1 + locator.offset)
                 {
                     pitch = (float) NumericValue.asNumber(lv.get(1 + locator.offset)).getDouble();
@@ -168,7 +169,7 @@ public class Auxiliary
             int count = 0;
             final ServerLevel level = cc.level();
             final long seed = level.getRandom().nextLong();
-            for (final ServerPlayer player : level.getPlayers((p) -> p.distanceToSqr(vec) < d0))
+            for (final ServerPlayer player : level.getPlayers(p -> p.distanceToSqr(vec) < d0))
             {
                 count++;
                 player.connection.send(new ClientboundSoundPacket(soundHolder, mixer, vec.x, vec.y, vec.z, volume, pitch, seed));
@@ -179,7 +180,7 @@ public class Auxiliary
         expression.addContextFunction("particle", -1, (c, t, lv) ->
         {
             final CarpetContext cc = (CarpetContext) c;
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 return ListValue.wrap(cc.registry(Registries.PARTICLE_TYPE).keySet().stream().map(ValueConversions::of));
             }
@@ -237,9 +238,9 @@ public class Auxiliary
             final Vector3Argument pos2 = Vector3Argument.findIn(lv, pos1.offset);
             double density = 1.0;
             ServerPlayer player = null;
-            if (lv.size() > pos2.offset + 0)
+            if (lv.size() > pos2.offset)
             {
-                density = NumericValue.asNumber(lv.get(pos2.offset + 0)).getDouble();
+                density = NumericValue.asNumber(lv.get(pos2.offset)).getDouble();
                 if (density <= 0)
                 {
                     throw new InternalExpressionException("Particle density should be positive");
@@ -282,9 +283,9 @@ public class Auxiliary
 
             double density = 1.0;
             ServerPlayer player = null;
-            if (lv.size() > pos2.offset + 0)
+            if (lv.size() > pos2.offset)
             {
-                density = NumericValue.asNumber(lv.get(pos2.offset + 0)).getDouble();
+                density = NumericValue.asNumber(lv.get(pos2.offset)).getDouble();
                 if (density <= 0)
                 {
                     throw new InternalExpressionException("Particle density should be positive");
@@ -370,7 +371,7 @@ public class Auxiliary
                 if (lv.size() > pointLocator.offset)
                 {
                     final BlockArgument blockLocator = BlockArgument.findIn(cc, lv, pointLocator.offset, true, true, false);
-                    if (blockLocator.block != null)
+                    if (!(blockLocator instanceof BlockArgument.MissingBlockArgument))
                     {
                         targetBlock = blockLocator.block.getBlockState();
                     }
@@ -380,7 +381,7 @@ public class Auxiliary
                     }
                 }
             }
-            catch (IndexOutOfBoundsException e)
+            catch (final IndexOutOfBoundsException e)
             {
                 throw new InternalExpressionException("'create_marker' requires a name and three coordinates, with optional direction, and optional block on its head");
             }
@@ -438,10 +439,10 @@ public class Auxiliary
             final CarpetContext cc = (CarpetContext) c;
             int total = 0;
             final String markerName = MARKER_STRING + "_" + ((cc.host.getName() == null) ? "" : cc.host.getName());
-            for (final Entity e : cc.level().getEntities(EntityType.ARMOR_STAND, (as) -> as.getTags().contains(markerName)))
+            for (final Entity e : cc.level().getEntities(EntityType.ARMOR_STAND, as -> as.getTags().contains(markerName)))
             {
                 total++;
-                e.discard(); // discard // remove();
+                e.discard();
             }
             return new NumericValue(total);
         });
@@ -455,11 +456,11 @@ public class Auxiliary
             {
                 return nbtsv.toValue();
             }
-            final NBTSerializableValue ret = NBTSerializableValue.parseString(v.getString(), false);
+            final NBTSerializableValue ret = NBTSerializableValue.parseString(v.getString());
             return ret == null ? Value.NULL : ret.toValue();
         });
 
-        expression.addFunction("tag_matches", (lv) -> {
+        expression.addFunction("tag_matches", lv -> {
             final int numParam = lv.size();
             if (numParam != 2 && numParam != 3)
             {
@@ -501,7 +502,7 @@ public class Auxiliary
         //"overridden" native call that prints to stderr
         expression.addContextFunction("print", -1, (c, t, lv) ->
         {
-            if (lv.size() == 0 || lv.size() > 2)
+            if (lv.isEmpty() || lv.size() > 2)
             {
                 throw new InternalExpressionException("'print' takes one or two arguments");
             }
@@ -666,7 +667,7 @@ public class Auxiliary
         });
 
         expression.addFunction("format", values -> {
-            if (values.size() == 0)
+            if (values.isEmpty())
             {
                 throw new InternalExpressionException("'format' requires at least one component");
             }
@@ -724,7 +725,7 @@ public class Auxiliary
         expression.addContextFunction("day_time", -1, (c, t, lv) ->
         {
             final Value time = new NumericValue(((CarpetContext) c).level().getDayTime());
-            if (lv.size() > 0)
+            if (!lv.isEmpty())
             {
                 long newTime = NumericValue.asNumber(lv.get(0)).getLong();
                 if (newTime < 0)
@@ -763,11 +764,11 @@ public class Auxiliary
             {
                 scriptServer.tickDepth++;
                 Vanilla.MinecraftServer_forceTick(server, () -> System.nanoTime() - scriptServer.tickStart < 50000000L);
-                if (lv.size() > 0)
+                if (!lv.isEmpty())
                 {
-                    final long ms_total = NumericValue.asNumber(lv.get(0)).getLong();
-                    final long end_expected = scriptServer.tickStart + ms_total * 1000000L;
-                    final long wait = end_expected - System.nanoTime();
+                    final long msTotal = NumericValue.asNumber(lv.get(0)).getLong();
+                    final long endExpected = scriptServer.tickStart + msTotal * 1000000L;
+                    final long wait = endExpected - System.nanoTime();
                     if (wait > 0L)
                     {
                         try
@@ -784,12 +785,12 @@ public class Auxiliary
             }
             finally
             {
-                if (scriptServer != null)
+                if (!scriptServer.stopAll)
                 {
                     scriptServer.tickDepth--;
                 }
             }
-            if (scriptServer != null && scriptServer.stopAll)
+            if (scriptServer.stopAll)
             {
                 throw new ExitStatement(Value.NULL);
             }
@@ -840,7 +841,7 @@ public class Auxiliary
         });
 
         expression.addContextFunction("plop", -1, (c, t, lv) -> {
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 final Map<Value, Value> plopData = new HashMap<>();
                 final CarpetContext cc = (CarpetContext) c;
@@ -1019,7 +1020,7 @@ public class Auxiliary
         expression.addContextFunction("load_app_data", -1, (c, t, lv) ->
         {
             FileArgument fdesc = new FileArgument(null, FileArgument.Type.NBT, null, false, false, FileArgument.Reason.READ, c.host);
-            if (lv.size() > 0)
+            if (!lv.isEmpty())
             {
                 c.host.issueDeprecation("load_app_data(...) with arguments");
                 final String resource = recognizeResource(lv.get(0), false);
@@ -1031,7 +1032,7 @@ public class Auxiliary
 
         expression.addContextFunction("store_app_data", -1, (c, t, lv) ->
         {
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 throw new InternalExpressionException("'store_app_data' needs NBT tag and an optional file");
             }
@@ -1095,7 +1096,7 @@ public class Auxiliary
         //signal_event('event', player or null, args.... ) -> number of apps notified
         expression.addContextFunction("signal_event", -1, (c, t, lv) ->
         {
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 throw new InternalExpressionException("'signal' requires at least one argument");
             }
@@ -1135,21 +1136,21 @@ public class Auxiliary
             }
             final CarpetContext cc = (CarpetContext) c;
             final CommandStorage storage = cc.server().getCommandStorage();
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
-                return ListValue.wrap(storage.keys().map(i -> new StringValue(nameFromRegistryId(i))));
+                return ListValue.wrap(storage.keys().map(NBTSerializableValue::nameFromRegistryId));
             }
             final String key = lv.get(0).getString();
-            final CompoundTag old_nbt = storage.get(InputValidator.identifierOf(key));
+            final CompoundTag oldNbt = storage.get(InputValidator.identifierOf(key));
             if (lv.size() == 2)
             {
                 final Value nbt = lv.get(1);
-                final NBTSerializableValue new_nbt = (nbt instanceof final NBTSerializableValue nbtsv)
+                final NBTSerializableValue newNbt = (nbt instanceof final NBTSerializableValue nbtsv)
                         ? nbtsv
-                        : NBTSerializableValue.parseString(nbt.getString(), true);
-                storage.set(InputValidator.identifierOf(key), new_nbt.getCompoundTag());
+                        : NBTSerializableValue.parseStringOrFail(nbt.getString());
+                storage.set(InputValidator.identifierOf(key), newNbt.getCompoundTag());
             }
-            return NBTSerializableValue.of(old_nbt);
+            return NBTSerializableValue.of(oldNbt);
         });
 
         // script run create_datapack('foo', {'foo' -> {'bar.json' -> {'c' -> true,'d' -> false,'e' -> {'foo' -> [1,2,3]},'a' -> 'foobar','b' -> 5}}})
@@ -1184,7 +1185,7 @@ public class Auxiliary
             {
                 try
                 {
-                    try (final FileSystem zipfs = FileSystems.newFileSystem(URI.create("jar:" + packFloder.toUri().toString()), Map.of("create", "true")))
+                    try (final FileSystem zipfs = FileSystems.newFileSystem(URI.create("jar:" + packFloder.toUri()), Map.of("create", "true")))
                     {
                         final Path zipRoot = zipfs.getPath("/");
                         zipValueToJson(zipRoot.resolve("pack.mcmeta"), MapValue.wrap(
@@ -1341,16 +1342,9 @@ public class Auxiliary
                 : new NBTSerializableValue(output.getString());
         final Tag tag = tagValue.getTag();
         Files.createDirectories(path.getParent());
-        try
+        if (tag instanceof final CompoundTag cTag)
         {
-            if (tag instanceof final CompoundTag cTag)
-            {
-                NbtIo.writeCompressed(cTag, Files.newOutputStream(path));
-            }
-        }
-        catch (final Throwable shitHappened)
-        {
-            throw shitHappened;
+            NbtIo.writeCompressed(cTag, Files.newOutputStream(path));
         }
     }
 
@@ -1386,6 +1380,7 @@ public class Auxiliary
         }
     }
 
+    @Nullable
     private static <T> Stat<T> getStat(final StatType<T> type, final ResourceLocation id)
     {
         final T key = type.getRegistry().get(id);

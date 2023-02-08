@@ -24,6 +24,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
+import javax.annotation.Nullable;
+
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -143,9 +145,14 @@ public interface Param
          * <p>A {@link ValueConverter} that outputs the {@link Context} in which the function has been called, and throws {@link UnsupportedOperationException} when trying to convert a {@link Value}
          * directly.</p>
          */
-        static final ValueConverter<Context> CONTEXT_PROVIDER = new ValueConverter<Context>()
+        static final ValueConverter<Context> CONTEXT_PROVIDER = new ValueConverter<>()
         {
-            @Override public String getTypeName() { return null; }
+            @Nullable
+            @Override
+            public String getTypeName()
+            {
+                return null;
+            }
 
             @Override
             public Context convert(final Value value, final Context context)
@@ -170,9 +177,14 @@ public interface Param
          * <p>A {@link ValueConverter} that outputs the {@link Context.Type} which the function has been called, or throws {@link UnsupportedOperationException} when trying to convert a {@link Value}
          * directly.</p>
          */
-        static final ValueConverter<Context.Type> CONTEXT_TYPE_PROVIDER = new ValueConverter<Context.Type>()
+        static final ValueConverter<Context.Type> CONTEXT_TYPE_PROVIDER = new ValueConverter<>()
         {
-            @Override public String getTypeName() { return null; }
+            @Nullable
+            @Override
+            public String getTypeName()
+            {
+                return null;
+            }
 
             @Override
             public Context.Type convert(final Value value, final Context context)

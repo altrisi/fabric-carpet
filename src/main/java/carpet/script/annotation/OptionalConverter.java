@@ -9,6 +9,8 @@ import java.util.Optional;
 import carpet.script.Context;
 import carpet.script.value.Value;
 
+import javax.annotation.Nullable;
+
 /**
  * <p>{@link ValueConverter} that accepts a parameter to not be present on function call.</p>
  * 
@@ -38,7 +40,7 @@ final class OptionalConverter<R> implements ValueConverter<Optional<R>>
         return "optional " + typeConverter.getTypeName();
     }
 
-    private OptionalConverter(AnnotatedType type)
+    private OptionalConverter(final AnnotatedType type)
     {
         typeConverter = ValueConverter.fromAnnotatedType(type);
     }
@@ -49,6 +51,7 @@ final class OptionalConverter<R> implements ValueConverter<Optional<R>>
      * @implNote Unlike most other converters, {@link OptionalConverter} will not call this method from
      *           {@link #checkAndConvert(Iterator, Context, Context.Type)} and is only used as a fallback in types that don't support it.
      */
+    @Nullable
     @Override
     public Optional<R> convert(final Value value, final Context context)
     {
@@ -64,6 +67,7 @@ final class OptionalConverter<R> implements ValueConverter<Optional<R>>
         return Optional.of(converted);
     }
 
+    @Nullable
     @Override
     public Optional<R> checkAndConvert(final Iterator<Value> valueIterator, final Context context, final Context.Type theLazyT)
     {

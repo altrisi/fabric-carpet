@@ -24,6 +24,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -68,13 +69,13 @@ public class Inventories
         {
             final CarpetContext cc = (CarpetContext) c;
             final Registry<Item> items = cc.registry(Registries.ITEM);
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 return ListValue.wrap(items.keySet().stream().map(ValueConversions::of));
             }
             final String tag = lv.get(0).getString();
             final Optional<HolderSet.Named<Item>> itemTag = items.getTag(TagKey.create(Registries.ITEM, InputValidator.identifierOf(tag)));
-            return itemTag.isEmpty() ? Value.NULL : ListValue.wrap(itemTag.get().stream().map(b -> ValueConversions.of(items.getKey(b.value()))));
+            return itemTag.isEmpty() ? Value.NULL : ListValue.wrap(itemTag.get().stream().map(b -> items.getKey(b.value())).filter(Objects::nonNull).map(ValueConversions::of));
         });
 
         expression.addContextFunction("item_tags", -1, (c, t, lv) ->
@@ -82,7 +83,7 @@ public class Inventories
             final CarpetContext cc = (CarpetContext) c;
 
             final Registry<Item> blocks = cc.registry(Registries.ITEM);
-            if (lv.size() == 0)
+            if (lv.isEmpty())
             {
                 return ListValue.wrap(blocks.getTagNames().map(ValueConversions::of));
             }
@@ -109,6 +110,10 @@ public class Inventories
             {
                 final String recipeType = lv.get(1).getString();
                 type = cc.registry(Registries.RECIPE_TYPE).get(InputValidator.identifierOf(recipeType));
+                if (type == null)
+                {
+                    throw new InternalExpressionException("Unknown recipe type: "+recipeType);
+                }
             }
             final List<Recipe<?>> recipes = Vanilla.RecipeManager_getAllMatching(cc.server().getRecipeManager(), type, InputValidator.identifierOf(recipeName), cc.registryAccess());
             if (recipes.isEmpty())
@@ -182,9 +187,8 @@ public class Inventories
             final ResourceLocation id = InputValidator.identifierOf(itemStr);
             final Registry<Item> registry = ((CarpetContext) c).registry(Registries.ITEM);
             final Item item = registry.getOptional(id).orElseThrow(() -> new ThrowStatement(itemStr, Throwables.UNKNOWN_ITEM));
-            return !item.hasCraftingRemainingItem()
-                    ? Value.NULL
-                    : new StringValue(NBTSerializableValue.nameFromRegistryId(registry.getKey(item.getCraftingRemainingItem())));
+            final Item reminder = item.getCraftingRemainingItem();
+            return reminder == null ? Value.NULL : NBTSerializableValue.nameFromRegistryId(registry.getKey(reminder));
         });
 
         expression.addContextFunction("inventory_size", -1, (c, t, lv) ->
@@ -240,7 +244,7 @@ public class Inventories
             {
                 throw new InternalExpressionException("'inventory_set' requires at least slot number and new stack size, and optional new item");
             }
-            int slot = (int) NumericValue.asNumber(lv.get(inventoryLocator.offset() + 0)).getLong();
+            int slot = (int) NumericValue.asNumber(lv.get(inventoryLocator.offset())).getLong();
             slot = NBTSerializableValue.validateSlot(slot, inventoryLocator.inventory());
             if (slot == inventoryLocator.inventory().getContainerSize())
             {
@@ -272,11 +276,7 @@ public class Inventories
                 {
                     nbt = nbtsv.getCompoundTag();
                 }
-                else if (nbtValue.isNull())
-                {
-                    nbt = null;
-                }
-                else
+                else if (!nbtValue.isNull())
                 {
                     nbt = new NBTSerializableValue(nbtValue.getString()).getCompoundTag();
                 }
@@ -307,7 +307,7 @@ public class Inventories
             ItemInput itemArg = null;
             if (lv.size() > inventoryLocator.offset())
             {
-                final Value secondArg = lv.get(inventoryLocator.offset() + 0);
+                final Value secondArg = lv.get(inventoryLocator.offset());
                 if (!secondArg.isNull())
                 {
                     itemArg = NBTSerializableValue.parseItem(secondArg.getString(), cc.registryAccess());
@@ -428,12 +428,16 @@ public class Inventories
             if (owner instanceof final Player player)
             {
                 item = player.drop(droppedStack, false, true);
+                if (item == null)
+                {
+                    return Value.ZERO;
+                }
             }
             else if (owner instanceof LivingEntity livingEntity)
             {
                 // stolen from LookTargetUtil.give((VillagerEntity)owner, droppedStack, (LivingEntity) owner);
-                double double_1 = livingEntity.getY() - 0.30000001192092896D + livingEntity.getEyeHeight();
-                item = new ItemEntity(livingEntity.level, livingEntity.getX(), double_1, livingEntity.getZ(), droppedStack);
+                final double dropY = livingEntity.getY() - 0.30000001192092896D + livingEntity.getEyeHeight();
+                item = new ItemEntity(livingEntity.level, livingEntity.getX(), dropY, livingEntity.getZ(), droppedStack);
                 final Vec3 vec3d = livingEntity.getViewVector(1.0F).normalize().scale(0.3);//  new Vec3d(0, 0.3, 0);
                 item.setDeltaMovement(vec3d);
                 item.setDefaultPickUpDelay();
