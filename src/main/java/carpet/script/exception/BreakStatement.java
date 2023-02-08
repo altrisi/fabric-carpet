@@ -4,7 +4,7 @@ import carpet.script.value.Value;
 
 public class BreakStatement extends ExitStatement
 {
-    public BreakStatement(final Value value)
+    public BreakStatement(Value value)
     {
         super(value);
     }

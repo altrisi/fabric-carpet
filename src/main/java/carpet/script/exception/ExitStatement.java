@@ -7,7 +7,7 @@ public class ExitStatement extends StacklessRuntimeException
 {
     public final Value retval;
 
-    public ExitStatement(final Value value)
+    public ExitStatement(Value value)
     {
         retval = value;
     }

@@ -54,15 +54,15 @@ public class BlockValue extends Value
     // we only care for null values a few times, most of the time we would assume its all present
     public static final BlockValue NONE = new BlockValue(Blocks.AIR.defaultBlockState(), null, BlockPos.ZERO, null);
 
-    public static BlockValue fromCoords(final CarpetContext c, final int x, final int y, final int z)
+    public static BlockValue fromCoords(CarpetContext c, int x, int y, int z)
     {
-        final BlockPos pos = locateBlockPos(c, x, y, z);
+        BlockPos pos = locateBlockPos(c, x, y, z);
         return new BlockValue(null, c.level(), pos);
     }
 
     private static final Map<String, BlockValue> bvCache = new HashMap<>();
 
-    public static BlockValue fromString(final String str, final ServerLevel level)
+    public static BlockValue fromString(String str, ServerLevel level)
     {
         try
         {
@@ -71,7 +71,7 @@ public class BlockValue extends Value
             {
                 return bv;
             }
-            final BlockStateParser.BlockResult foo = BlockStateParser.parseForBlock(level.registryAccess().lookupOrThrow(Registries.BLOCK), new StringReader(str), true);
+            BlockStateParser.BlockResult foo = BlockStateParser.parseForBlock(level.registryAccess().lookupOrThrow(Registries.BLOCK), new StringReader(str), true);
             if (foo.blockState() != null)
             {
                 CompoundTag bd = foo.nbt();
@@ -88,15 +88,15 @@ public class BlockValue extends Value
                 return bv;
             }
         }
-        catch (final CommandSyntaxException ignored)
+        catch (CommandSyntaxException ignored)
         {
         }
         throw new ThrowStatement(str, Throwables.UNKNOWN_BLOCK);
     }
 
-    public static BlockPos locateBlockPos(final CarpetContext c, final int xpos, final int ypos, final int zpos)
+    public static BlockPos locateBlockPos(CarpetContext c, int xpos, int ypos, int zpos)
     {
-        final BlockPos pos = c.origin();
+        BlockPos pos = c.origin();
         return new BlockPos(pos.getX() + xpos, pos.getY() + ypos, pos.getZ() + zpos);
     }
 
@@ -114,7 +114,7 @@ public class BlockValue extends Value
         throw new InternalExpressionException("Attempted to fetch block state without world or stored block state");
     }
 
-    public static BlockEntity getBlockEntity(final Level level, final BlockPos pos)
+    public static BlockEntity getBlockEntity(Level level, BlockPos pos)
     {
         if (level instanceof final ServerLevel serverLevel)
         {
@@ -134,7 +134,7 @@ public class BlockValue extends Value
         }
         if (pos != null)
         {
-            final BlockEntity be = getBlockEntity(world, pos);
+            BlockEntity be = getBlockEntity(world, pos);
             if (be == null)
             {
                 data = new CompoundTag();
@@ -147,7 +147,7 @@ public class BlockValue extends Value
     }
 
 
-    public BlockValue(final BlockState state, final ServerLevel world, final BlockPos position)
+    public BlockValue(BlockState state, ServerLevel world, BlockPos position)
     {
         this.world = world;
         blockState = state;
@@ -155,7 +155,7 @@ public class BlockValue extends Value
         data = null;
     }
 
-    public BlockValue(final BlockState state)
+    public BlockValue(BlockState state)
     {
         this.world = null;
         blockState = state;
@@ -163,7 +163,7 @@ public class BlockValue extends Value
         data = null;
     }
 
-    public BlockValue(final ServerLevel world, final BlockPos position)
+    public BlockValue(ServerLevel world, BlockPos position)
     {
         this.world = world;
         blockState = null;
@@ -171,7 +171,7 @@ public class BlockValue extends Value
         data = null;
     }
 
-    public BlockValue(final BlockState state, final CompoundTag nbt)
+    public BlockValue(BlockState state, CompoundTag nbt)
     {
         this.world = null;
         blockState = state;
@@ -179,7 +179,7 @@ public class BlockValue extends Value
         data = nbt;
     }
 
-    public BlockValue(final BlockState state, final ServerLevel world, final CompoundTag nbt)
+    public BlockValue(BlockState state, ServerLevel world, CompoundTag nbt)
     {
         this.world = world;
         blockState = state;
@@ -187,7 +187,7 @@ public class BlockValue extends Value
         data = nbt;
     }
 
-    private BlockValue(@Nullable final BlockState state, @Nullable final ServerLevel world, @Nullable final BlockPos position, @Nullable final CompoundTag nbt)
+    private BlockValue(@Nullable BlockState state, @Nullable ServerLevel world, @Nullable BlockPos position, @Nullable CompoundTag nbt)
     {
         this.world = world;
         blockState = state;
@@ -199,7 +199,7 @@ public class BlockValue extends Value
     @Override
     public String getString()
     {
-        final Registry<Block> blockRegistry = world.registryAccess().registryOrThrow(Registries.BLOCK);
+        Registry<Block> blockRegistry = world.registryAccess().registryOrThrow(Registries.BLOCK);
         return nameFromResource(blockRegistry.getKey(getBlockState().getBlock()));
     }
 
@@ -240,29 +240,29 @@ public class BlockValue extends Value
     }
 
     @Override
-    public Tag toTag(final boolean force)
+    public Tag toTag(boolean force)
     {
         if (!force)
         {
             throw new NBTSerializableValue.IncompatibleTypeException(this);
         }
         // follows falling block convertion
-        final CompoundTag tag = new CompoundTag();
-        final CompoundTag state = new CompoundTag();
-        final BlockState s = getBlockState();
+        CompoundTag tag = new CompoundTag();
+        CompoundTag state = new CompoundTag();
+        BlockState s = getBlockState();
         state.put("Name", StringTag.valueOf(world.registryAccess().registryOrThrow(Registries.BLOCK).getKey(s.getBlock()).toString()));
-        final Collection<Property<?>> properties = s.getProperties();
+        Collection<Property<?>> properties = s.getProperties();
         if (!properties.isEmpty())
         {
-            final CompoundTag props = new CompoundTag();
-            for (final Property<?> p : properties)
+            CompoundTag props = new CompoundTag();
+            for (Property<?> p : properties)
             {
                 props.put(p.getName(), StringTag.valueOf(s.getValue(p).toString().toLowerCase(Locale.ROOT)));
             }
             state.put("Properties", props);
         }
         tag.put("BlockState", state);
-        final CompoundTag dataTag = getData();
+        CompoundTag dataTag = getData();
         if (dataTag != null)
         {
             tag.put("TileEntityData", dataTag);
@@ -304,7 +304,7 @@ public class BlockValue extends Value
         private static final Map<String, SpecificDirection> DIRECTION_MAP = Arrays.stream(values()).collect(Collectors.toMap(SpecificDirection::getName, d -> d));
 
 
-        SpecificDirection(final String name, final double hitx, final double hity, final double hitz, final Direction blockFacing)
+        SpecificDirection(String name, double hitx, double hity, double hitz, Direction blockFacing)
         {
             this.name = name;
             this.hitOffset = new Vec3(hitx, hity, hitz);
@@ -322,18 +322,18 @@ public class BlockValue extends Value
         private final Direction facing;
         private final boolean sneakPlace;
 
-        public static PlacementContext from(final Level world, final BlockPos pos, final String direction, final boolean sneakPlace, final ItemStack itemStack)
+        public static PlacementContext from(Level world, BlockPos pos, String direction, boolean sneakPlace, ItemStack itemStack)
         {
-            final SpecificDirection dir = SpecificDirection.DIRECTION_MAP.get(direction);
+            SpecificDirection dir = SpecificDirection.DIRECTION_MAP.get(direction);
             if (dir == null)
             {
                 throw new InternalExpressionException("unknown block placement direction: " + direction);
             }
-            final BlockHitResult hitres = new BlockHitResult(Vec3.atLowerCornerOf(pos).add(dir.hitOffset), dir.facing, pos, false);
+            BlockHitResult hitres = new BlockHitResult(Vec3.atLowerCornerOf(pos).add(dir.hitOffset), dir.facing, pos, false);
             return new PlacementContext(world, dir.facing, sneakPlace, itemStack, hitres);
         }
 
-        private PlacementContext(final Level world_1, final Direction direction_1, final boolean sneakPlace, final ItemStack itemStack_1, final BlockHitResult hitres)
+        private PlacementContext(Level world_1, Direction direction_1, boolean sneakPlace, ItemStack itemStack_1, BlockHitResult hitres)
         {
             super(world_1, null, InteractionHand.MAIN_HAND, itemStack_1, hitres);
             this.facing = direction_1;
@@ -343,9 +343,9 @@ public class BlockValue extends Value
         @Override
         public BlockPos getClickedPos()
         {
-            final boolean prevcanReplaceExisting = replaceClicked;
+            boolean prevcanReplaceExisting = replaceClicked;
             replaceClicked = true;
-            final BlockPos ret = super.getClickedPos();
+            BlockPos ret = super.getClickedPos();
             replaceClicked = prevcanReplaceExisting;
             return ret;
         }

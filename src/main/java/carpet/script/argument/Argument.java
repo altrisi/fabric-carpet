@@ -4,7 +4,7 @@ public abstract class Argument
 {
     public final int offset;
 
-    protected Argument(final int offset)
+    protected Argument(int offset)
     {
         this.offset = offset;
     }

@@ -40,7 +40,7 @@ final class OptionalConverter<R> implements ValueConverter<Optional<R>>
         return "optional " + typeConverter.getTypeName();
     }
 
-    private OptionalConverter(final AnnotatedType type)
+    private OptionalConverter(AnnotatedType type)
     {
         typeConverter = ValueConverter.fromAnnotatedType(type);
     }
@@ -53,13 +53,13 @@ final class OptionalConverter<R> implements ValueConverter<Optional<R>>
      */
     @Nullable
     @Override
-    public Optional<R> convert(final Value value, final Context context)
+    public Optional<R> convert(Value value, Context context)
     {
         if (value.isNull())
         {
             return Optional.empty();
         }
-        final R converted = typeConverter.convert(value, context);
+        R converted = typeConverter.convert(value, context);
         if (converted == null)
         {
             return null;
@@ -69,14 +69,14 @@ final class OptionalConverter<R> implements ValueConverter<Optional<R>>
 
     @Nullable
     @Override
-    public Optional<R> checkAndConvert(final Iterator<Value> valueIterator, final Context context, final Context.Type theLazyT)
+    public Optional<R> checkAndConvert(Iterator<Value> valueIterator, Context context, Context.Type theLazyT)
     {
         if (!valueIterator.hasNext() || valueIterator.next().isNull())
         {
             return Optional.empty();
         }
         ((ListIterator<Value>) valueIterator).previous();
-        final R converted = typeConverter.checkAndConvert(valueIterator, context, theLazyT);
+        R converted = typeConverter.checkAndConvert(valueIterator, context, theLazyT);
         if (converted == null)
         {
             return null;
@@ -110,10 +110,10 @@ final class OptionalConverter<R> implements ValueConverter<Optional<R>>
      * @param annotatedType The type to get generics information from
      * @return A new {@link OptionalConverter} for the data specified in the {@link AnnotatedType}
      */
-    static OptionalConverter<?> fromAnnotatedType(final AnnotatedType annotatedType)
+    static OptionalConverter<?> fromAnnotatedType(AnnotatedType annotatedType)
     {
-        final AnnotatedParameterizedType paramType = (AnnotatedParameterizedType) annotatedType;
-        final AnnotatedType wrappedType = paramType.getAnnotatedActualTypeArguments()[0];
+        AnnotatedParameterizedType paramType = (AnnotatedParameterizedType) annotatedType;
+        AnnotatedType wrappedType = paramType.getAnnotatedActualTypeArguments()[0];
         return new OptionalConverter<>(wrappedType);
     }
 }

@@ -29,12 +29,12 @@ public class StringValue extends Value
         return new StringValue(str);
     }
 
-    public StringValue(final String str)
+    public StringValue(String str)
     {
         this.str = str;
     }
 
-    public static Value of(@Nullable final String value)
+    public static Value of(@Nullable String value)
     {
         return value == null ? Value.NULL : new StringValue(value);
     }
@@ -46,7 +46,7 @@ public class StringValue extends Value
     }
 
     @Override
-    public Tag toTag(final boolean force)
+    public Tag toTag(boolean force)
     {
         return StringTag.valueOf(str);
     }

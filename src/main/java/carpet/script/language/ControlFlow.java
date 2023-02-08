@@ -19,23 +19,23 @@ import java.util.stream.Collectors;
 
 public class ControlFlow
 {
-    public static void apply(final Expression expression) // public just to get the javadoc right
+    public static void apply(Expression expression) // public just to get the javadoc right
     {
         // needs to be lazy cause of custom contextualization
         expression.addLazyBinaryOperator(";", Operators.precedence.get("nextop;"), true, true, t -> Context.Type.VOID, (c, t, lv1, lv2) ->
         {
             lv1.evalValue(c, Context.VOID);
-            final Value v2 = lv2.evalValue(c, t);
+            Value v2 = lv2.evalValue(c, t);
             return (cc, tt) -> v2;
         });
 
         expression.addPureLazyFunction("then", -1, t -> Context.Type.VOID, (c, t, lv) -> {
-            final int imax = lv.size() - 1;
+            int imax = lv.size() - 1;
             for (int i = 0; i < imax; i++)
             {
                 lv.get(i).evalValue(c, Context.VOID);
             }
-            final Value v = lv.get(imax).evalValue(c, t);
+            Value v = lv.get(imax).evalValue(c, t);
             return (cc, tt) -> v;
         });
         expression.addFunctionalEquivalence(";", "then");
@@ -52,13 +52,13 @@ public class ControlFlow
             {
                 if (lv.get(i).evalValue(c, Context.BOOLEAN).getBoolean())
                 {
-                    final Value ret = lv.get(i + 1).evalValue(c, t);
+                    Value ret = lv.get(i + 1).evalValue(c, t);
                     return (cc, tt) -> ret;
                 }
             }
             if (lv.size() % 2 == 1)
             {
-                final Value ret = lv.get(lv.size() - 1).evalValue(c, t);
+                Value ret = lv.get(lv.size() - 1).evalValue(c, t);
                 return (cc, tt) -> ret;
             }
             return (cc, tt) -> Value.NULL;
@@ -89,10 +89,10 @@ public class ControlFlow
             }
             try
             {
-                final Value retval = lv.get(0).evalValue(c, t);
+                Value retval = lv.get(0).evalValue(c, t);
                 return (c_, t_) -> retval;
             }
-            catch (final ProcessedThrowStatement ret)
+            catch (ProcessedThrowStatement ret)
             {
                 if (lv.size() == 1)
                 {
@@ -109,9 +109,9 @@ public class ControlFlow
 
                 Value val = null; // This is always assigned at some point, just the compiler doesn't know
 
-                final LazyValue __ = c.getVariable("_");
+                LazyValue __ = c.getVariable("_");
                 c.setVariable("_", (__c, __t) -> ret.data.reboundedTo("_"));
-                final LazyValue _trace = c.getVariable("_trace");
+                LazyValue _trace = c.getVariable("_trace");
                 c.setVariable("_trace", (__c, __t) -> MapValue.wrap(Map.of(
                         StringValue.of("stack"), ListValue.wrap(ret.stack.stream().map(f -> ListValue.of(
                                 StringValue.of(f.getModule().name()),
@@ -164,7 +164,7 @@ public class ControlFlow
                 {
                     throw ret;
                 }
-                final Value retval = val;
+                Value retval = val;
                 return (c_, t_) -> retval;
             }
         });

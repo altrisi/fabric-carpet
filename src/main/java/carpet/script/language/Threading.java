@@ -11,7 +11,7 @@ import carpet.script.value.Value;
 
 public class Threading
 {
-    public static void apply(final Expression expression)
+    public static void apply(Expression expression)
     {
         expression.addFunctionWithDelegation("task", -1, false, false, (c, t, expr, tok, lv) ->
         {
@@ -19,8 +19,8 @@ public class Threading
             {
                 throw new InternalExpressionException("'task' requires at least function to call as a parameter");
             }
-            final FunctionArgument functionArgument = FunctionArgument.findIn(c, expression.module, lv, 0, false, true);
-            final ThreadValue thread = new ThreadValue(Value.NULL, functionArgument.function, expr, tok, c, functionArgument.checkedArgs());
+            FunctionArgument functionArgument = FunctionArgument.findIn(c, expression.module, lv, 0, false, true);
+            ThreadValue thread = new ThreadValue(Value.NULL, functionArgument.function, expr, tok, c, functionArgument.checkedArgs());
             Thread.yield();
             return thread;
         });
@@ -31,9 +31,9 @@ public class Threading
             {
                 throw new InternalExpressionException("'task' requires at least function to call as a parameter");
             }
-            final Value queue = lv.get(0);
-            final FunctionArgument functionArgument = FunctionArgument.findIn(c, expression.module, lv, 1, false, true);
-            final ThreadValue thread = new ThreadValue(queue, functionArgument.function, expr, tok, c, functionArgument.checkedArgs());
+            Value queue = lv.get(0);
+            FunctionArgument functionArgument = FunctionArgument.findIn(c, expression.module, lv, 1, false, true);
+            ThreadValue thread = new ThreadValue(queue, functionArgument.function, expr, tok, c, functionArgument.checkedArgs());
             Thread.yield();
             return thread;
         });
@@ -92,7 +92,7 @@ public class Threading
             }
             synchronized (c.host.getLock(lockValue))
             {
-                final Value ret = lv.get(ind).evalValue(c, t);
+                Value ret = lv.get(ind).evalValue(c, t);
                 return (_c, _t) -> ret;
             }
         });
@@ -100,7 +100,7 @@ public class Threading
         // lazy since exception expression is very conditional
         expression.addLazyFunction("sleep", (c, t, lv) ->
         {
-            final long time = lv.isEmpty() ? 0L : NumericValue.asNumber(lv.get(0).evalValue(c)).getLong();
+            long time = lv.isEmpty() ? 0L : NumericValue.asNumber(lv.get(0).evalValue(c)).getLong();
             boolean interrupted = false;
             try
             {
@@ -114,7 +114,7 @@ public class Threading
                 }
                 Thread.yield();
             }
-            catch (final InterruptedException ignored)
+            catch (InterruptedException ignored)
             {
                 interrupted = true;
             }

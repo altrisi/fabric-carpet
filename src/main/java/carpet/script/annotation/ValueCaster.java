@@ -53,7 +53,7 @@ public final class ValueCaster<R> implements ValueConverter<R> // R always exten
     private final Class<R> outputType;
     private final String typeName;
 
-    private ValueCaster(final Class<R> outputType, final String typeName)
+    private ValueCaster(Class<R> outputType, String typeName)
     {
         super();
         this.outputType = outputType;
@@ -75,7 +75,7 @@ public final class ValueCaster<R> implements ValueConverter<R> // R always exten
      */
     @SuppressWarnings("unchecked") // Casters are stored with their exact class, for sure since the map is private (&& class has same generic as
                                    // caster)
-    public static <R> ValueCaster<R> get(final Class<R> outputType)
+    public static <R> ValueCaster<R> get(Class<R> outputType)
     {
         return (ValueCaster<R>) byResult.get(outputType);
     }
@@ -83,7 +83,7 @@ public final class ValueCaster<R> implements ValueConverter<R> // R always exten
     @Nullable
     @Override
     @SuppressWarnings("unchecked") // more than checked, see SimpleTypeConverter#converter for reasoning
-    public R convert(final Value value, final Context context)
+    public R convert(Value value, Context context)
     {
         if (!outputType.isInstance(value))
         {
@@ -101,9 +101,9 @@ public final class ValueCaster<R> implements ValueConverter<R> // R always exten
      *                   required<!--, with the form //Outdated concept <code>(function name) requires a (typeName) to be passed as (argName, if
      *                   available)</code>-->
      */
-    public static <R extends Value> void register(final Class<R> valueClass, final String typeName)
+    public static <R extends Value> void register(Class<R> valueClass, String typeName)
     {
-        final ValueCaster<R> caster = new ValueCaster<>(valueClass, typeName);
+        ValueCaster<R> caster = new ValueCaster<>(valueClass, typeName);
         byResult.putIfAbsent(valueClass, caster);
     }
 }
