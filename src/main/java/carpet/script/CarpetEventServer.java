@@ -427,7 +427,7 @@ public class CarpetEventServer
     {
         static {
         	if (StackWalker.getInstance().walk(s -> s
-        			.noneMatch(f -> f.getClassName() == CarpetServer.class.getName() && f.getMethodName() == "onServerLoaded"))) {
+        			.noneMatch(f -> f.getClassName() == carpet.CarpetServer.class.getName() && f.getMethodName() == "onServerLoaded"))) {
         		// Some extensions (or simply mods via mixing into something that calls nearby) have sometimes initialized
         		// this so early that entities from other mods are not registered yet, causing log spam at runtime (see ENTITY_HANDLER).
         		// Doing this allows debugging of who/what loaded it, maybe we could just attach handlers to something like EntityType
