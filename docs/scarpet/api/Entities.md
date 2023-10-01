@@ -206,17 +206,21 @@ Entity that `e` rides.
 
 Boolean, true if the entity cannot be mounted.
 
-### `(deprecated) query(e, 'tags')`
+### `query(e, 'tags')`
 
-Deprecated by `query(e, 'scoreboard_tags')`
+> **Warning**
+> 
+> This query is deprecated. Use `query(e, 'scoreboard_tags')` instead
 
 ### `query(e, 'scoreboard_tags')`
 
 List of entity's scoreboard tags.
 
-### `(deprecated) query(e, 'has_tag',tag)`
+### `query(e, 'has_tag',tag)`
 
-Deprecated by `query(e, 'has_scoreboard_tag',tag)`
+> **Warning**
+> 
+> This query is deprecated. Use `query(e, 'has_scoreboard_tag', tag)` instead.
 
 ### `query(e, 'has_scoreboard_tag',tag)`
 
@@ -925,8 +929,11 @@ In case you want to pass an event handler that is not defined in your module, pl
 
 Attaches a callback to trigger when any entity matching the following type / types is loaded in the game, allowing to grab a handle
 to an entity right when it is loaded to the world without querying them every tick. Callback expects two parameters - the entity,
-and a boolean value indicating if the entity was newly created(`true`) or just loaded from disk. Single argument functions accepting
-only entities are allowed, but deprecated and will be removed at some point.
+and a boolean value indicating if the entity was newly created(`true`) or just loaded from disk.
+
+> **Note**
+> 
+> Passing a function that takes a single argument (the entity, without the new boolean) is deprecated and will be removed at some point.
 
 If callback is `null`, then the current entity handler, if present, is removed. Consecutive calls to `entity_load_handler` will add / subtract
 of the currently targeted entity types pool.

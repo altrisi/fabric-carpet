@@ -93,11 +93,21 @@ trigger with `/reload`.
 Event triggers at the beginning of each tick, located in the overworld. You can use `in_dimension()`
 to access other dimensions from there.
 
-### `__on_tick_nether()` (Deprecated)
-Duplicate of `tick`, just automatically located in the nether. Use `__on_tick() -> in_dimension('nether', ... ` instead.
+### `__on_tick_nether()`
 
-### `__on_tick_ender()` (Deprecated)
-Duplicate of `tick`, just automatically located in the end. Use `__on_tick() -> in_dimension('end', ... ` instead.
+> **Warning**
+> 
+> This function is deprecated. Use `__on_tick() -> in_dimension('nether', ... ` instead.
+
+Duplicate of `tick`, just automatically located in the nether.
+
+### `__on_tick_ender()`
+
+> **Warning**
+> 
+> This function is deprecated. Use `__on_tick() -> in_dimension('end', ... ` instead.
+
+Duplicate of `tick`, just automatically located in the end.
 
 ### `__on_chunk_generated(x, z)`
 Called right after a chunk at a given coordinate is full generated. `x` and `z` correspond

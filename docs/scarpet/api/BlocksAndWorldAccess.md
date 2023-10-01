@@ -269,13 +269,17 @@ pos_offset(block(0,5,0), 'up', 2)  => [0,7,0]
 pos_offset([0,5,0], 'up', -2 ) => [0,3,0]
 </pre>
 
-### `(Deprecated) block_properties(pos)`
+### `block_properties(pos)`
 
-Deprecated by `keys(block_state(pos))`.
+> **Warning**
+> 
+> This function is deprecated. Use  `keys(block_state(pos))` instead.
 
-### `(Deprecated) property(pos, name)`
+### `property(pos, name)`
 
-Deprecated by `block_state(pos, name)`
+> **Warning**
+> 
+> This function is deprecated. Use `block_state(pos, name)` instead
 
 ### `block_state(block)`, `block_state(block, property)`
 
@@ -504,10 +508,17 @@ Returns the name of sound type made by the block at position. One of:
 `'candle'`', `'amethyst'`', `'amethyst_cluster'`', `'small_amethyst_bud'`', `'large_amethyst_bud'`', `'medium_amethyst_bud'`',
 `'tuff'`', `'calcite'`', `'copper'`'
 
-### `(Deprecated) material(pos)`
+### `material(pos)`
 
-Returns `'unknown'`. The concept of material for blocks is removed. On previous versions it returned the name of the material the block
-was made of.
+> **Warning**
+> 
+> This function is deprecated.
+
+> **Important**
+> 
+> In current versions, it always returns `unknwon`. The concept of materials in blocks has been removed.
+
+Returns the name of the material the block is made of.
 
 ### `map_colour(pos)`
 
@@ -559,11 +570,13 @@ loaded(pos(player()))  => 1
 loaded(100000,100,1000000)  => 0
 </pre>
 
-### `(Deprecated) loaded_ep(pos)`
+### `loaded_ep(pos)`
 
-Boolean function, true if the block is loaded and entity processing, as per 1.13.2
+> **Warning**
+> 
+> This function is deprecated as of Scarpet 1.6. Use use `loaded_status(x) > 0`, or just `loaded(x)` instead.
 
-Deprecated as of scarpet 1.6, use `loaded_status(x) > 0`, or just `loaded(x)` with the same effect
+Boolean function, true if the block is loaded and entity processing, as per 1.13.2.
 
 ### `loaded_status(pos)`
 
