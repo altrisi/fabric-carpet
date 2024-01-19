@@ -82,8 +82,7 @@ public class Loops
                 }
                 //revering scope
                 c.setVariable("_", defaultVal);
-                Value lastValueNoKidding = lastOne;
-                return (cc, tt) -> lastValueNoKidding;
+                return lastOne;
             }
             long limit = NumericValue.asNumber(lv.get(1).evalValue(c)).getLong();
             LazyValue condition = lv.get(0);
@@ -116,8 +115,7 @@ public class Loops
             }
             //revering scope
             c.setVariable("_", defaultVal);
-            Value lastValueNoKidding = lastOne;
-            return (cc, tt) -> lastValueNoKidding;
+            return lastOne;
         });
 
         // loop(Num, expr) => lastdefaultValue
@@ -151,8 +149,7 @@ public class Loops
             }
             //revering scope
             c.setVariable("_", defaultVal);
-            Value trulyLastOne = lastOne;
-            return (cc, tt) -> trulyLastOne;
+            return lastOne;
         });
 
         // map(list or Num, expr) => list_results
@@ -162,7 +159,7 @@ public class Loops
             Value rval = lv.get(0).evalValue(c, Context.NONE);
             if (rval.isNull())
             {
-                return ListValue.lazyEmpty();
+                return ListValue.of();
             }
             if (!(rval instanceof final AbstractListValue alv))
             {
@@ -208,7 +205,7 @@ public class Loops
             //revering scope
             c.setVariable("_", defaultVal);
             c.setVariable("_i", iterVal);
-            return (cc, tt) -> ret;
+            return ret;
         });
 
         // grep(list or num, expr) => list
@@ -219,7 +216,7 @@ public class Loops
             Value rval = lv.get(0).evalValue(c, Context.NONE);
             if (rval.isNull())
             {
-                return ListValue.lazyEmpty();
+                return ListValue.of();
             }
             if (!(rval instanceof final AbstractListValue alv))
             {
@@ -268,7 +265,7 @@ public class Loops
             //revering scope
             c.setVariable("_", defaultVal);
             c.setVariable("_i", iterVal);
-            return (cc, tt) -> ret;
+            return ret;
         });
 
         // first(list, expr) => elem or null
@@ -279,7 +276,7 @@ public class Loops
             Value rval = lv.get(0).evalValue(c, Context.NONE);
             if (rval.isNull())
             {
-                return LazyValue.NULL;
+                return Value.NULL;
             }
             if (!(rval instanceof final AbstractListValue alv))
             {
@@ -325,10 +322,9 @@ public class Loops
             }
             //revering scope
             ((AbstractListValue) rval).fatality();
-            Value whyWontYouTrustMeJava = result;
             c.setVariable("_", defaultVal);
             c.setVariable("_i", iterVal);
-            return (cc, tt) -> whyWontYouTrustMeJava;
+            return result;
         });
 
         // all(list, expr) => boolean
@@ -339,7 +335,7 @@ public class Loops
             Value rval = lv.get(0).evalValue(c, Context.NONE);
             if (rval.isNull())
             {
-                return LazyValue.TRUE;
+                return Value.TRUE;
             }
             if (!(rval instanceof final AbstractListValue alv))
             {
@@ -350,7 +346,7 @@ public class Loops
             //scoping
             LazyValue defaultVal = c.getVariable("_");
             LazyValue iterVal = c.getVariable("_i");
-            LazyValue result = LazyValue.TRUE;
+            Value result = Value.TRUE;
             for (int i = 0; iterator.hasNext(); i++)
             {
                 Value next = iterator.next();
@@ -364,7 +360,7 @@ public class Loops
                 c.setVariable("_i", (cc, tt) -> new NumericValue(seriously).bindTo("_i"));
                 if (!expr.evalValue(c, Context.BOOLEAN).getBoolean())
                 {
-                    result = LazyValue.FALSE;
+                    result = Value.FALSE;
                     next.boundVariable = variable;
                     break;
                 }
@@ -400,8 +396,7 @@ public class Loops
                 }
                 iterations++;
             }
-            int finalIterations = iterations;
-            return (cc, tt) -> new NumericValue(finalIterations);
+            return new NumericValue(iterations);
         });
 
         // similar to map, but returns total number of successes
@@ -412,7 +407,7 @@ public class Loops
             Value rval = lv.get(0).evalValue(c, Context.NONE);
             if (rval.isNull())
             {
-                return LazyValue.ZERO;
+                return Value.ZERO;
             }
             if (!(rval instanceof final AbstractListValue alv))
             {
@@ -462,8 +457,7 @@ public class Loops
             ((AbstractListValue) rval).fatality();
             c.setVariable("_", defaultVal);
             c.setVariable("_i", iterVal);
-            long promiseWontChange = successCount;
-            return (cc, tt) -> new NumericValue(promiseWontChange);
+            return new NumericValue(successCount);
         });
 
 
@@ -477,7 +471,7 @@ public class Loops
             Value rval = lv.get(0).evalValue(c, Context.NONE);
             if (rval.isNull())
             {
-                return ListValue.lazyEmpty();
+                return ListValue.of();
             }
             if (!(rval instanceof final AbstractListValue alv))
             {
@@ -489,8 +483,7 @@ public class Loops
 
             if (!iterator.hasNext())
             {
-                Value seriouslyWontChange = acc;
-                return (cc, tt) -> seriouslyWontChange;
+                return acc;
             }
 
             //scoping
@@ -535,8 +528,7 @@ public class Loops
             c.setVariable("_", defaultVal);
             c.setVariable("_i", iterVal);
 
-            Value hopeItsEnoughPromise = acc;
-            return (cc, tt) -> hopeItsEnoughPromise;
+            return acc;
         });
     }
 }

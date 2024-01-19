@@ -830,7 +830,7 @@ public class CarpetScriptHost extends ScriptHost
             assertAppIntegrity(function.getModule());
             Context context = new CarpetContext(this, source);
             return scriptServer().events.handleEvents.getWhileDisabled(() -> function.getExpression().evalValue(
-                    () -> function.lazyEval(context, Context.VOID, function.getExpression(), function.getToken(), argv),
+                    (c, t) -> function.lazyEval(context, Context.VOID, function.getExpression(), function.getToken(), argv),
                     context,
                     Context.VOID
             ));
@@ -863,7 +863,7 @@ public class CarpetScriptHost extends ScriptHost
             assertAppIntegrity(function.getModule());
             Context context = new CarpetContext(this, source);
             return function.getExpression().evalValue(
-                    () -> function.execute(context, Context.VOID, function.getExpression(), function.getToken(), argv, null),
+                    (c, t) -> function.execute(context, Context.VOID, function.getExpression(), function.getToken(), argv, null),
                     context,
                     Context.VOID
             );
@@ -900,7 +900,7 @@ public class CarpetScriptHost extends ScriptHost
             assertAppIntegrity(fun.getModule());
             Context context = new CarpetContext(this, source, origin);
             return fun.getExpression().evalValue(
-                    () -> fun.execute(context, Context.VOID, fun.getExpression(), fun.getToken(), argv, null),
+                    (c, t) -> fun.execute(context, Context.VOID, fun.getExpression(), fun.getToken(), argv, null),
                     context,
                     Context.VOID);
         }

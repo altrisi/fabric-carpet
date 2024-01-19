@@ -61,11 +61,11 @@ public class Threading
             return tv.join();
         });
 
-        expression.addLazyFunction("task_dock", 1, (c, t, lv) ->
+        expression.addLazyFunction("task_dock", 1, (c, t, lv) -> {
             // pass through placeholder
             // implmenetation should dock the task on the main thread.
-            lv.get(0)
-        );
+            throw new InternalExpressionException("task_dock is not implemented");
+        });
 
         expression.addUnaryFunction("task_completed", v ->
         {
@@ -92,8 +92,7 @@ public class Threading
             }
             synchronized (c.host.getLock(lockValue))
             {
-                Value ret = lv.get(ind).evalValue(c, t);
-                return (ct, tt) -> ret;
+                return lv.get(ind).evalValue(c, t);
             }
         });
 
@@ -127,7 +126,7 @@ public class Threading
                 }
                 throw new ExitStatement(exceptionally);
             }
-            return (cc, tt) -> new NumericValue(time); // pass through for variables
+            return new NumericValue(time); // pass through for variables
         });
 
         expression.addLazyFunction("yield", (c, t, lv) ->
@@ -142,8 +141,7 @@ public class Threading
             }
             boolean lock = lv.size() > 1 && lv.get(1).evalValue(c, Context.BOOLEAN).getBoolean();
             Value value = lv.get(0).evalValue(c);
-            Value ret = c.getThreadContext().ping(value, lock);
-            return (cc, tt) -> ret;
+            return c.getThreadContext().ping(value, lock);
         });
 
         expression.addLazyFunction("task_send", 2, (c, t, lv) ->
@@ -159,7 +157,7 @@ public class Threading
             }
             Value ret = lv.get(1).evalValue(c);
             thread.send(ret);
-            return (cc, tt) -> Value.NULL;
+            return Value.NULL;
         });
 
         expression.addLazyFunction("task_await", 1, (c, t, lv) ->
@@ -174,7 +172,7 @@ public class Threading
                 throw new InternalExpressionException("'task_await' requires a coroutine task value");
             }
             Value ret = thread.next();
-            return ret == Value.EOL ? ((cc, tt) -> Value.NULL) : ((cc, tt) -> ret);
+            return ret == Value.EOL ? Value.NULL : ret;
         });
 
         expression.addLazyFunction("task_ready", 1, (c, t, lv) ->
@@ -185,7 +183,7 @@ public class Threading
                 throw new InternalExpressionException("'task_ready' requires a task value");
             }
             boolean ret = thread.isCoroutine && thread.hasNext();
-            return (cc, tt) -> BooleanValue.of(ret);
+            return BooleanValue.of(ret);
         });
     }
 }

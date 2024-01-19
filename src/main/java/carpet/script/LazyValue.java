@@ -39,15 +39,8 @@ public interface LazyValue
     }
 
 
-    class Constant implements ContextFreeLazyValue
+    record Constant(Value result) implements ContextFreeLazyValue
     {
-        Value result;
-
-        public Constant(Value value)
-        {
-            result = value;
-        }
-
         public Value get()
         {
             return result;

@@ -45,7 +45,7 @@ public class Functions
         expression.addCustomFunction("call", new Fluff.AbstractLazyFunction(-1, "call")
         {
             @Override
-            public LazyValue lazyEval(Context c, Context.Type t, Expression expr, Tokenizer.Token tok, List<LazyValue> lv)
+            public Value lazyEval(Context c, Context.Type t, Expression expr, Tokenizer.Token tok, List<LazyValue> lv)
             {
                 if (lv.isEmpty())
                 {
@@ -91,8 +91,7 @@ public class Functions
                         args.add(v.boundVariable);
                     }
                 }
-                Value retval = new FunctionSignatureValue(name, args, varArgs, globals);
-                return (cc, tt) -> retval;
+                return new FunctionSignatureValue(name, args, varArgs, globals);
             }
 
             @Override

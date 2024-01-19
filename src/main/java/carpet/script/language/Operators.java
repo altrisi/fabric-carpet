@@ -163,18 +163,18 @@ public class Operators
             int last = lv.size() - 1;
             if (last == -1)
             {
-                return LazyValue.TRUE;
+                return Value.TRUE;
             }
             for (LazyValue l : lv.subList(0, last))
             {
                 Value val = l.evalValue(c, Context.Type.BOOLEAN);
-                if (val instanceof final FunctionUnpackedArgumentsValue fuav)
+                if (val instanceof FunctionUnpackedArgumentsValue fuav)
                 {
                     for (Value it : fuav)
                     {
                         if (!it.getBoolean())
                         {
-                            return (cc, tt) -> it;
+                            return it;
                         }
                     }
                 }
@@ -182,11 +182,11 @@ public class Operators
                 {
                     if (!val.getBoolean())
                     {
-                        return (cc, tt) -> val;
+                        return val;
                     }
                 }
             }
-            return lv.get(last);
+            return lv.get(last).evalValue(c, Context.Type.BOOLEAN);
         });
         expression.addFunctionalEquivalence("&&", "and");
 
@@ -201,7 +201,7 @@ public class Operators
             int last = lv.size() - 1;
             if (last == -1)
             {
-                return LazyValue.FALSE;
+                return Value.FALSE;
             }
             for (LazyValue l : lv.subList(0, last))
             {
@@ -212,7 +212,7 @@ public class Operators
                     {
                         if (it.getBoolean())
                         {
-                            return (cc, tt) -> it;
+                            return it;
                         }
                     }
                 }
@@ -220,11 +220,11 @@ public class Operators
                 {
                     if (val.getBoolean())
                     {
-                        return (cc, tt) -> val;
+                        return val;
                     }
                 }
             }
-            return lv.get(last);
+            return lv.get(last).evalValue(c, Context.Type.BOOLEAN);
         });
         expression.addFunctionalEquivalence("||", "or");
 

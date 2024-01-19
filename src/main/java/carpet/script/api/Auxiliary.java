@@ -834,14 +834,13 @@ public class Auxiliary
             Level world = ValueConversions.dimFromValue(dimensionValue, outerSource.getServer());
             if (world == outerSource.getLevel())
             {
-                return lv.get(1);
+                return lv.get(1).evalValue(c, t);
             }
             CommandSourceStack innerSource = outerSource.withLevel((ServerLevel) world);
             Context newCtx = c.recreate();
             ((CarpetContext) newCtx).swapSource(innerSource);
             newCtx.variables = c.variables;
-            Value retval = lv.get(1).evalValue(newCtx);
-            return (cc, tt) -> retval;
+            return lv.get(1).evalValue(newCtx);
         });
 
         expression.addContextFunction("plop", -1, (c, t, lv) -> {

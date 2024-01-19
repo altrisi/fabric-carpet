@@ -154,7 +154,7 @@ public final class AnnotationParser
         }
     }
 
-    private static class ParsedFunction implements TriFunction<Context, Context.Type, List<LazyValue>, LazyValue>, UsageProvider
+    private static class ParsedFunction implements TriFunction<Context, Context.Type, List<LazyValue>, Value>, UsageProvider
     {
         private final String name;
         private final boolean isMethodVarArgs;
@@ -243,7 +243,7 @@ public final class AnnotationParser
         }
 
         @Override
-        public LazyValue apply(Context context, Context.Type t, List<LazyValue> lazyValues)
+        public Value apply(Context context, Context.Type t, List<LazyValue> lazyValues)
         {
             List<Value> lv = AbstractLazyFunction.unpackLazy(lazyValues, context, contextType);
             if (isEffectivelyVarArgs)
@@ -262,8 +262,7 @@ public final class AnnotationParser
             Object[] params = getMethodParams(lv, context, t);
             try
             {
-                Value result = outputConverter.convert(handle.invokeExact(params));
-                return (cc, tt) -> result;
+                return outputConverter.convert(handle.invokeExact(params));
             }
             catch (Throwable e)
             {

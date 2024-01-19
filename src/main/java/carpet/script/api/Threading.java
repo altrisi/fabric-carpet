@@ -34,7 +34,7 @@ public class Threading
             MinecraftServer server = cc.server();
             if (server.isSameThread())
             {
-                return lv.get(0); // pass through for on thread tasks
+                return lv.get(0).evalValue(c, t); // pass through for on thread tasks
             }
             Value[] result = new Value[]{Value.NULL};
             RuntimeException[] internal = new RuntimeException[]{null};
@@ -69,8 +69,7 @@ public class Threading
             {
                 throw internal[0];
             }
-            Value ret = result[0]; // preventing from lazy evaluating of the result in case a future completes later
-            return (ct, tt) -> ret;
+            return result[0]; // preventing from lazy evaluating of the result in case a future completes later
             // pass through placeholder
             // implmenetation should dock the task on the main thread.
         });

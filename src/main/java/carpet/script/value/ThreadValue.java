@@ -50,7 +50,7 @@ public class ThreadValue extends LazyListValue
             return CompletableFuture.supplyAsync(() -> {
                 try
                 {
-                    return function.execute(ctx, Context.NONE, expr, token, args, callingThread).evalValue(ctx);
+                    return function.execute(ctx, Context.NONE, expr, token, args, callingThread);
                 }
                 catch (ExitStatement exit)
                 {

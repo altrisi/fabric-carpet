@@ -719,7 +719,7 @@ public class WorldAccess
         {
             if (Carpet.getImpendingFillSkipUpdates().get())
             {
-                return lv.get(0);
+                return lv.get(0).evalValue(c, t);
             }
             Value[] result = new Value[]{Value.NULL};
             ((CarpetContext) c).server().executeBlocking(() ->
@@ -736,7 +736,7 @@ public class WorldAccess
                     skipUpdates.set(previous);
                 }
             });
-            return (cc, tt) -> result[0];
+            return result[0];
         });
 
         expression.addContextFunction("set", -1, (c, t, lv) ->

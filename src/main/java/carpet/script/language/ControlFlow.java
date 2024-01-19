@@ -35,8 +35,7 @@ public class ControlFlow
             {
                 lv.get(i).evalValue(c, Context.VOID);
             }
-            Value v = lv.get(imax).evalValue(c, t);
-            return (cc, tt) -> v;
+            return lv.get(imax).evalValue(c, t);
         });
         expression.addFunctionalEquivalence(";", "then");
 
@@ -52,16 +51,14 @@ public class ControlFlow
             {
                 if (lv.get(i).evalValue(c, Context.BOOLEAN).getBoolean())
                 {
-                    Value ret = lv.get(i + 1).evalValue(c, t);
-                    return (cc, tt) -> ret;
+                    return lv.get(i + 1).evalValue(c, t);
                 }
             }
             if (lv.size() % 2 == 1)
             {
-                Value ret = lv.get(lv.size() - 1).evalValue(c, t);
-                return (cc, tt) -> ret;
+                return lv.get(lv.size() - 1).evalValue(c, t);
             }
-            return (cc, tt) -> Value.NULL;
+            return Value.NULL;
         });
 
         expression.addImpureFunction("exit", lv -> {
@@ -89,8 +86,7 @@ public class ControlFlow
             }
             try
             {
-                Value retval = lv.get(0).evalValue(c, t);
-                return (ct, tt) -> retval;
+                return lv.get(0).evalValue(c, t);
             }
             catch (ProcessedThrowStatement ret)
             {
@@ -100,7 +96,7 @@ public class ControlFlow
                     {
                         throw ret;
                     }
-                    return (ct, tt) -> Value.NULL;
+                    return Value.NULL;
                 }
                 if (lv.size() > 3 && lv.size() % 2 == 0)
                 {
@@ -164,8 +160,7 @@ public class ControlFlow
                 {
                     throw ret;
                 }
-                Value retval = val;
-                return (ct, tt) -> retval;
+                return val;
             }
         });
     }

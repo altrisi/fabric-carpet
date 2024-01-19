@@ -156,7 +156,7 @@ public class FunctionValue extends Value implements Fluff.ILazyFunction
         return varArgs != null;
     }
 
-    public LazyValue callInContext(Context c, Context.Type type, List<Value> params)
+    public Value callInContext(Context c, Context.Type type, List<Value> params)
     {
         try
         {
@@ -213,13 +213,13 @@ public class FunctionValue extends Value implements Fluff.ILazyFunction
     }
 
     @Override
-    public LazyValue lazyEval(Context c, Context.Type type, Expression e, Tokenizer.Token t, List<LazyValue> lazyParams)
+    public Value lazyEval(Context c, Context.Type type, Expression e, Tokenizer.Token t, List<LazyValue> lazyParams)
     {
         List<Value> resolvedParams = unpackArgs(lazyParams, c);
         return execute(c, type, e, t, resolvedParams, null);
     }
 
-    public LazyValue execute(Context c, Context.Type type, Expression e, Tokenizer.Token t, List<Value> params, @Nullable ThreadValue freshNewCallingThread)
+    public Value execute(Context c, Context.Type type, Expression e, Tokenizer.Token t, List<Value> params, @Nullable ThreadValue freshNewCallingThread)
     {
         assertArgsOk(params, fixedArgs -> {
             if (fixedArgs)  // wrong number of args for fixed args
@@ -278,8 +278,7 @@ public class FunctionValue extends Value implements Fluff.ILazyFunction
         {
             retVal = returnStatement.retval;
         }
-        Value otherRetVal = retVal;
-        return (cc, tt) -> otherRetVal;
+        return retVal;
     }
 
     public Expression getExpression()

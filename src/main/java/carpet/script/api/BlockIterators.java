@@ -147,7 +147,7 @@ public class BlockIterators
             c.setVariable("_z", zVal);
             c.setVariable("_", defaultVal);
             int finalSCount = sCount;
-            return (ct, tt) -> new NumericValue(finalSCount);
+            return new NumericValue(finalSCount);
         });
 
         // must be lazy
@@ -226,7 +226,7 @@ public class BlockIterators
             c.setVariable("_z", zVal);
             c.setVariable("_", defaultVal);
             int finalSCount = sCount;
-            return (ct, tt) -> new NumericValue(finalSCount);
+            return new NumericValue(finalSCount);
         });
 
         expression.addContextFunction("neighbours", -1, (c, t, lv) ->

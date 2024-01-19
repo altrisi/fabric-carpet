@@ -416,8 +416,7 @@ public class Sys
                 lazy.evalValue(c);
                 it++;
             }
-            Value res = new NumericValue(it);
-            return (cc, tt) -> res;
+            return new NumericValue(it);
         });
 
         expression.addContextFunction("var", 1, (c, t, lv) ->
@@ -493,7 +492,7 @@ public class Sys
                 c.host.scriptServer().systemGlobals.computeIfAbsent(key, k -> lv.get(1).evalValue(c));
             }
             Value res = c.host.scriptServer().systemGlobals.get(key);
-            return res == null ? LazyValue.NULL : ((cc, tt) -> res);
+            return res == null ? Value.NULL : res;
         });
 
         expression.addContextFunction("system_variable_set", 2, (c, t, lv) ->

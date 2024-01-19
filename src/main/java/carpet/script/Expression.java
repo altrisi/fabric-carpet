@@ -266,7 +266,7 @@ public class Expression
     }
 
     public void addLazyFunctionWithDelegation(String name, int numpar, boolean pure, boolean transitive,
-                                              QuinnFunction<Context, Context.Type, Expression, Tokenizer.Token, List<LazyValue>, LazyValue> lazyfun)
+                                              QuinnFunction<Context, Context.Type, Expression, Tokenizer.Token, List<LazyValue>, Value> fun)
     {
         functions.put(name, new AbstractLazyFunction(numpar, name)
         {
@@ -283,12 +283,12 @@ public class Expression
             }
 
             @Override
-            public LazyValue lazyEval(Context c, Context.Type type, Expression e, Tokenizer.Token t, List<LazyValue> lv)
+            public Value lazyEval(Context c, Context.Type type, Expression e, Tokenizer.Token t, List<LazyValue> lv)
             {
                 ILazyFunction.checkInterrupts();
                 try
                 {
-                    return lazyfun.apply(c, type, e, t, lv);
+                    return fun.apply(c, type, e, t, lv);
                 }
                 catch (RuntimeException exc)
                 {
@@ -316,12 +316,11 @@ public class Expression
             }
 
             @Override
-            public LazyValue lazyEval(Context c, Context.Type type, Expression e, Tokenizer.Token t, List<LazyValue> lv)
+            public Value lazyEval(Context c, Context.Type type, Expression e, Tokenizer.Token t, List<LazyValue> lv)
             {
                 try
                 {
-                    Value res = fun.apply(c, type, e, t, unpackArgs(lv, c, Context.NONE));
-                    return (cc, tt) -> res;
+                    return fun.apply(c, type, e, t, unpackArgs(lv, c, Context.NONE));
                 }
                 catch (RuntimeException exc)
                 {
@@ -551,7 +550,7 @@ public class Expression
     }
 
 
-    public void addLazyFunction(String name, int numParams, TriFunction<Context, Context.Type, List<LazyValue>, LazyValue> fun)
+    public void addLazyFunction(String name, int numParams, TriFunction<Context, Context.Type, List<LazyValue>, Value> fun)
     {
         functions.put(name, new AbstractLazyFunction(numParams, name)
         {
@@ -568,7 +567,7 @@ public class Expression
             }
 
             @Override
-            public LazyValue lazyEval(Context c, Context.Type i, Expression e, Tokenizer.Token t, List<LazyValue> lazyParams)
+            public Value lazyEval(Context c, Context.Type i, Expression e, Tokenizer.Token t, List<LazyValue> lazyParams)
             {
                 ILazyFunction.checkInterrupts();
                 if (numParams >= 0 && lazyParams.size() != numParams)
@@ -589,7 +588,7 @@ public class Expression
         });
     }
 
-    public void addLazyFunction(String name, TriFunction<Context, Context.Type, List<LazyValue>, LazyValue> fun)
+    public void addLazyFunction(String name, TriFunction<Context, Context.Type, List<LazyValue>, Value> fun)
     {
         functions.put(name, new AbstractLazyFunction(-1, name)
         {
@@ -606,7 +605,7 @@ public class Expression
             }
 
             @Override
-            public LazyValue lazyEval(Context c, Context.Type i, Expression e, Tokenizer.Token t, List<LazyValue> lazyParams)
+            public Value lazyEval(Context c, Context.Type i, Expression e, Tokenizer.Token t, List<LazyValue> lazyParams)
             {
                 ILazyFunction.checkInterrupts();
                 try
@@ -621,7 +620,7 @@ public class Expression
         });
     }
 
-    public void addPureLazyFunction(String name, int num_params, Function<Context.Type, Context.Type> typer, TriFunction<Context, Context.Type, List<LazyValue>, LazyValue> fun)
+    public void addPureLazyFunction(String name, int num_params, Function<Context.Type, Context.Type> typer, TriFunction<Context, Context.Type, List<LazyValue>, Value> fun)
     {
         functions.put(name, new AbstractLazyFunction(num_params, name)
         {
@@ -644,7 +643,7 @@ public class Expression
             }
 
             @Override
-            public LazyValue lazyEval(Context c, Context.Type i, Expression e, Tokenizer.Token t, List<LazyValue> lazyParams)
+            public Value lazyEval(Context c, Context.Type i, Expression e, Tokenizer.Token t, List<LazyValue> lazyParams)
             {
                 ILazyFunction.checkInterrupts();
                 try
@@ -676,13 +675,12 @@ public class Expression
             }
 
             @Override
-            public LazyValue lazyEval(Context c, Context.Type i, Expression e, Tokenizer.Token t, List<LazyValue> lazyParams)
+            public Value lazyEval(Context c, Context.Type i, Expression e, Tokenizer.Token t, List<LazyValue> lazyParams)
             {
                 ILazyFunction.checkInterrupts();
                 try
                 {
-                    Value ret = fun.apply(c, i, unpackArgs(lazyParams, c, Context.NONE));
-                    return (cc, tt) -> ret;
+                    return fun.apply(c, i, unpackArgs(lazyParams, c, Context.NONE));
                 }
                 catch (RuntimeException exc)
                 {
@@ -715,12 +713,11 @@ public class Expression
             }
 
             @Override
-            public LazyValue lazyEval(Context c, Context.Type i, Expression e, Tokenizer.Token t, List<LazyValue> lazyParams)
+            public Value lazyEval(Context c, Context.Type i, Expression e, Tokenizer.Token t, List<LazyValue> lazyParams)
             {
                 try
                 {
-                    Value ret = fun.apply(c, i, unpackArgs(lazyParams, c, reqType));
-                    return (cc, tt) -> ret;
+                    return fun.apply(c, i, unpackArgs(lazyParams, c, reqType));
                 }
                 catch (RuntimeException exc)
                 {
@@ -799,7 +796,7 @@ public class Expression
             }
 
             @Override
-            public LazyValue lazyEval(Context c, Context.Type type, Expression expr, Tokenizer.Token token, List<LazyValue> lazyParams)
+            public Value lazyEval(Context c, Context.Type type, Expression expr, Tokenizer.Token token, List<LazyValue> lazyParams)
             {
                 c.host.issueDeprecation(copy + "(...)");
                 return originalFunction.lazyEval(c, type, expr, token, lazyParams);
@@ -1024,14 +1021,14 @@ public class Expression
         {
             ast = getAST(c);
         }
-        return evalValue(() -> ast, c, Context.Type.NONE);
+        return evalValue(ast, c, Context.Type.NONE);
     }
 
-    public Value evalValue(Supplier<LazyValue> exprProvider, Context c, Context.Type expectedType)
+    public Value evalValue(LazyValue exprProvider, Context c, Context.Type expectedType)
     {
         try
         {
-            return exprProvider.get().evalValue(c, expectedType);
+            return exprProvider.evalValue(c, expectedType);
         }
         catch (ContinueStatement | BreakStatement | ReturnStatement exc)
         {
@@ -1145,7 +1142,7 @@ public class Expression
                     }
                     List<LazyValue> params = p.stream().map(n -> n.op).collect(Collectors.toList());
                     nodeStack.push(new ExpressionNode(
-                            (c, t) -> f.lazyEval(c, t, this, token, params).evalValue(c, t),
+                            (c, t) -> f.lazyEval(c, t, this, token, params),
                             p, token
                     ));
                 }
@@ -1450,7 +1447,7 @@ public class Expression
         Value result;
         if (operation instanceof ILazyFunction)
         {
-            result = ((ILazyFunction) operation).lazyEval(ctx, expectedType, this, node.token, args).evalValue(null, expectedType);
+            result = ((ILazyFunction) operation).lazyEval(ctx, expectedType, this, node.token, args);
         }
         else if (args.size() == 1)
         {
@@ -1510,7 +1507,7 @@ public class Expression
                 ILazyFunction f = functions.get(token.surface);
                 Context.Type requestedType = f.staticType(expectedType);
                 List<LazyValue> params = node.args.stream().map(n -> extractOp(ctx, n, requestedType)).collect(Collectors.toList());
-                return (c, t) -> f.lazyEval(c, t, this, token, params).evalValue(c, t);
+                return (c, t) -> f.lazyEval(c, t, this, token, params);
             }
             case CONSTANT:
                 return node.op;
