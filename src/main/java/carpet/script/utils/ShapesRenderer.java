@@ -6,11 +6,12 @@ import carpet.script.utils.shapes.ShapeDirection;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 import com.mojang.math.Axis;
@@ -25,8 +26,6 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.CoreShaders;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -122,7 +121,7 @@ public class ShapesRenderer
         }
         long currentTime = client.level.getGameTime();
         RenderSystem.enableDepthTest();
-        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
+        //RenderSystem.setShader(CoreShaders.POSITION_COLOR);
         RenderSystem.depthFunc(515);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -617,6 +616,15 @@ public class ShapesRenderer
         }
     }
 
+    private static void drawWithShader(MeshData mesh) {
+        RenderType.debugTriangleFan().draw(mesh);
+        //VertexBuffer buffre = mesh.drawState().format().getImmediateDrawVertexBuffer();
+        //buffre.bind();
+        //buffre.upload(mesh);
+        //buffre.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderType. RenderSystem.getShader());
+    }
+
+
     public static class RenderedPolyface extends RenderedShape<ShapeDispatcher.Polyface>
     {
         private static final VertexFormat.Mode[] faceIndices = new VertexFormat.Mode[]{
@@ -654,7 +662,7 @@ public class ShapesRenderer
                 }
                 builder.addVertex((float) (vec.x() - cx), (float) (vec.y() - cy), (float) (vec.z() - cz)).setColor(shape.fr, shape.fg, shape.fb, shape.fa);
             }
-            BufferUploader.drawWithShader(builder.buildOrThrow());
+            drawWithShader(builder.buildOrThrow());
 
             RenderSystem.disableCull();
             RenderSystem.depthMask(false);
@@ -690,7 +698,7 @@ public class ShapesRenderer
                     builder.addVertex((float) (vec.x() - cx), (float) (vec.y() - cy), (float) (vec.z() - cz)).setColor(shape.r, shape.g, shape.b, shape.a);
                 }
                 builder.addVertex((float) (vec0.x() - cx), (float) (vec0.y() - cy), (float) (vec0.z() - cz)).setColor(shape.r, shape.g, shape.b, shape.a);
-                BufferUploader.drawWithShader(builder.buildOrThrow());
+                drawWithShader(builder.buildOrThrow());
                 if (shape.inneredges)
                 {
                     BufferBuilder builderr = tesselator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
@@ -705,7 +713,7 @@ public class ShapesRenderer
                         builderr.addVertex((float) (vec.x() - cx), (float) (vec.y() - cy), (float) (vec.z() - cz)).setColor(shape.r, shape.g, shape.b, shape.a);
                         builderr.addVertex((float) (vec0.x() - cx), (float) (vec0.y() - cy), (float) (vec0.z() - cz)).setColor(shape.r, shape.g, shape.b, shape.a);
                     }
-                    BufferUploader.drawWithShader(builderr.buildOrThrow());
+                    drawWithShader(builderr.buildOrThrow());
                 }
                 return;
             }
@@ -750,7 +758,7 @@ public class ShapesRenderer
                         builder.addVertex((float) (vec.x() - cx), (float) (vec.y() - cy), (float) (vec.z() - cz)).setColor(shape.r, shape.g, shape.b, shape.a);
                     }
                 }
-                BufferUploader.drawWithShader(builder.buildOrThrow());
+                drawWithShader(builder.buildOrThrow());
                 return;
             }
             if (shape.mode == 4)
@@ -784,7 +792,7 @@ public class ShapesRenderer
                     builder.addVertex((float) (vecC.x() - cx), (float) (vecC.y() - cy), (float) (vecC.z() - cz)).setColor(shape.r, shape.g, shape.b, shape.a);
                     builder.addVertex((float) (vecA.x() - cx), (float) (vecA.y() - cy), (float) (vecA.z() - cz)).setColor(shape.r, shape.g, shape.b, shape.a);
                 }
-                BufferUploader.drawWithShader(builder.buildOrThrow());
+                drawWithShader(builder.buildOrThrow());
             }
         }
     }
@@ -873,7 +881,7 @@ public class ShapesRenderer
         BufferBuilder builder = tesselator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
         builder.addVertex(x1, y1, z1).setColor(red1, grn1, blu1, alpha);
         builder.addVertex(x2, y2, z2).setColor(red1, grn1, blu1, alpha);
-        BufferUploader.drawWithShader(builder.buildOrThrow());
+        drawWithShader(builder.buildOrThrow());
     }
 
     public static void drawBoxWireGLLines(
@@ -926,7 +934,7 @@ public class ShapesRenderer
             builder.addVertex(x2, y2, z1).setColor(red1, grn1, blu1, alpha);
             builder.addVertex(x2, y2, z2).setColor(red1, grn1, blu1, alpha);
         }
-        BufferUploader.drawWithShader(builder.buildOrThrow());
+        drawWithShader(builder.buildOrThrow());
     }
 
     public static void drawBoxFaces(
@@ -987,7 +995,7 @@ public class ShapesRenderer
                 builder.addVertex(x1, y2, z2).setColor(red1, grn1, blu1, alpha);
             }
         }
-        BufferUploader.drawWithShader(builder.buildOrThrow());
+        drawWithShader(builder.buildOrThrow());
     }
 
     public static void drawCylinderWireframe(Tesselator tesselator,
@@ -1020,7 +1028,7 @@ public class ShapesRenderer
                     float z = r * Mth.sin(theta);
                     builder.addVertex(x + cx, y + cy, z + cz).setColor(red, grn, blu, alpha);
                 }
-                BufferUploader.drawWithShader(builder.buildOrThrow());
+                drawWithShader(builder.buildOrThrow());
             }
 
             if (!isFlat)
@@ -1038,7 +1046,7 @@ public class ShapesRenderer
                     builder.addVertex(cx + x, cy + h, cz - z).setColor(red, grn, blu, alpha);
                     builder.addVertex(cx - x, cy + h, cz + z).setColor(red, grn, blu, alpha);
                     builder.addVertex(cx - x, cy + 0, cz + z).setColor(red, grn, blu, alpha);
-                    BufferUploader.drawWithShader(builder.buildOrThrow());
+                    drawWithShader(builder.buildOrThrow());
                 }
             }
             else
@@ -1052,7 +1060,7 @@ public class ShapesRenderer
                     builder.addVertex(cx - x, cy, cz + z).setColor(red, grn, blu, alpha);
                     builder.addVertex(cx + x, cy, cz - z).setColor(red, grn, blu, alpha);
                 }
-                BufferUploader.drawWithShader(builder.buildOrThrow());
+                drawWithShader(builder.buildOrThrow());
             }
 
         }
@@ -1070,7 +1078,7 @@ public class ShapesRenderer
                     float y = r * Mth.sin(theta);
                     builder.addVertex(x + cx, y + cy, z + cz).setColor(red, grn, blu, alpha);
                 }
-                BufferUploader.drawWithShader(builder.buildOrThrow());
+                drawWithShader(builder.buildOrThrow());
             }
 
             if (!isFlat)
@@ -1087,7 +1095,7 @@ public class ShapesRenderer
                     builder.addVertex(cx + 0, cy + y, cz - z).setColor(red, grn, blu, alpha);
                     builder.addVertex(cx + h, cy + y, cz - z).setColor(red, grn, blu, alpha);
                     builder.addVertex(cx + h, cy - y, cz + z).setColor(red, grn, blu, alpha);
-                    BufferUploader.drawWithShader(builder.buildOrThrow());
+                    drawWithShader(builder.buildOrThrow());
                 }
             }
             else
@@ -1101,7 +1109,7 @@ public class ShapesRenderer
                     builder.addVertex(cx, cy - y, cz + z).setColor(red, grn, blu, alpha);
                     builder.addVertex(cx, cy + y, cz - z).setColor(red, grn, blu, alpha);
                 }
-                BufferUploader.drawWithShader(builder.buildOrThrow());
+                drawWithShader(builder.buildOrThrow());
             }
         }
         else if (axis == Direction.Axis.Z)
@@ -1118,7 +1126,7 @@ public class ShapesRenderer
                     float x = r * Mth.sin(theta);
                     builder.addVertex(x + cx, y + cy, z + cz).setColor(red, grn, blu, alpha);
                 }
-                BufferUploader.drawWithShader(builder.buildOrThrow());
+                drawWithShader(builder.buildOrThrow());
             }
             if (!isFlat)
             {
@@ -1134,7 +1142,7 @@ public class ShapesRenderer
                     builder.addVertex(cx - x, cy + y, cz + 0).setColor(red, grn, blu, alpha);
                     builder.addVertex(cx - x, cy + y, cz + h).setColor(red, grn, blu, alpha);
                     builder.addVertex(cx + x, cy - y, cz + h).setColor(red, grn, blu, alpha);
-                    BufferUploader.drawWithShader(builder.buildOrThrow());
+                    drawWithShader(builder.buildOrThrow());
                 }
             }
             else
@@ -1148,7 +1156,7 @@ public class ShapesRenderer
                     builder.addVertex(cx + x, cy - y, cz).setColor(red, grn, blu, alpha);
                     builder.addVertex(cx - x, cy + y, cz).setColor(red, grn, blu, alpha);
                 }
-                BufferUploader.drawWithShader(builder.buildOrThrow());
+                drawWithShader(builder.buildOrThrow());
             }
 
         }
@@ -1175,7 +1183,7 @@ public class ShapesRenderer
                 float z = r * Mth.sin(theta);
                 builder.addVertex(x + cx, cy, z + cz).setColor(red, grn, blu, alpha);
             }
-            BufferUploader.drawWithShader(builder.buildOrThrow());
+            drawWithShader(builder.buildOrThrow());
             if (!isFlat)
             {
                 BufferBuilder builderr = tesselator.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
@@ -1187,7 +1195,7 @@ public class ShapesRenderer
                     float z = r * Mth.sin(theta);
                     builderr.addVertex(x + cx, cy + h, z + cz).setColor(red, grn, blu, alpha);
                 }
-                BufferUploader.drawWithShader(builderr.buildOrThrow());
+                drawWithShader(builderr.buildOrThrow());
 
                 BufferBuilder builderrr = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);  // quad strip to quads
                 float xp = r * 1;
@@ -1204,7 +1212,7 @@ public class ShapesRenderer
                     xp = x;
                     zp = z;
                 }
-                BufferUploader.drawWithShader(builderrr.buildOrThrow());
+                drawWithShader(builderrr.buildOrThrow());
             }
 
         }
@@ -1219,7 +1227,7 @@ public class ShapesRenderer
                 float z = r * Mth.sin(theta);
                 builder.addVertex(cx, cy + y, z + cz).setColor(red, grn, blu, alpha);
             }
-            BufferUploader.drawWithShader(builder.buildOrThrow());
+            drawWithShader(builder.buildOrThrow());
             if (!isFlat)
             {
                 BufferBuilder builderr = tesselator.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
@@ -1231,7 +1239,7 @@ public class ShapesRenderer
                     float z = r * Mth.sin(theta);
                     builderr.addVertex(cx + h, cy + y, cz + z).setColor(red, grn, blu, alpha);
                 }
-                BufferUploader.drawWithShader(builderr.buildOrThrow());
+                drawWithShader(builderr.buildOrThrow());
 
                 BufferBuilder builderrr = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);  // quad strip to quads
                 float yp = r * 1;
@@ -1248,7 +1256,7 @@ public class ShapesRenderer
                     yp = y;
                     zp = z;
                 }
-                BufferUploader.drawWithShader(builderrr.buildOrThrow());
+                drawWithShader(builderrr.buildOrThrow());
             }
         }
         else if (axis == Direction.Axis.Z)
@@ -1262,7 +1270,7 @@ public class ShapesRenderer
                 float y = r * Mth.sin(theta);
                 builder.addVertex(x + cx, cy + y, cz).setColor(red, grn, blu, alpha);
             }
-            BufferUploader.drawWithShader(builder.buildOrThrow());
+            drawWithShader(builder.buildOrThrow());
             if (!isFlat)
             {
                 BufferBuilder builderr = tesselator.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
@@ -1274,7 +1282,7 @@ public class ShapesRenderer
                     float y = r * Mth.sin(theta);
                     builderr.addVertex(x + cx, cy + y, cz + h).setColor(red, grn, blu, alpha);
                 }
-                BufferUploader.drawWithShader(builderr.buildOrThrow());
+                drawWithShader(builderr.buildOrThrow());
 
                 BufferBuilder builderrr = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);  // quad strip to quads
                 float xp = r;
@@ -1291,7 +1299,7 @@ public class ShapesRenderer
                     xp = x;
                     yp = y;
                 }
-                BufferUploader.drawWithShader(builderrr.buildOrThrow());
+                drawWithShader(builderrr.buildOrThrow());
             }
         }
     }
@@ -1316,7 +1324,7 @@ public class ShapesRenderer
                 float y = r * Mth.cos(phi);
                 builder.addVertex(x + cx, y + cy, z + cz).setColor(red, grn, blu, alpha);
             }
-            BufferUploader.drawWithShader(builder.buildOrThrow());
+            drawWithShader(builder.buildOrThrow());
         }
         for (int j = 0; j <= num_steps180; j++)
         {
@@ -1331,7 +1339,7 @@ public class ShapesRenderer
                 float y = r * Mth.cos(phi);
                 builder.addVertex(x + cx, y + cy, z + cz).setColor(red, grn, blu, alpha);
             }
-            BufferUploader.drawWithShader(builder.buildOrThrow());
+            drawWithShader(builder.buildOrThrow());
         }
 
     }
@@ -1373,7 +1381,7 @@ public class ShapesRenderer
                 zbp = zp;
                 yp = y;
             }
-            BufferUploader.drawWithShader(builder.buildOrThrow());
+            drawWithShader(builder.buildOrThrow());
         }
     }
 }
